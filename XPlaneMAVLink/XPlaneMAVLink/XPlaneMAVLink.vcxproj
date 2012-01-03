@@ -46,7 +46,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Users\Owen\Documents\Visual Studio 2010\Projects\SDK\CHeaders\Wrappers;C:\Users\Owen\Documents\Visual Studio 2010\Projects\SDK\CHeaders\Widgets;C:\Users\Owen\Documents\Visual Studio 2010\Projects\SDK\CHeaders\XPLM;C:\Users\Owen\Documents\Visual Studio 2010\Projects\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Wrappers;C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Widgets;C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\XPLM;C:\Users\Owen\Documents\lucas-research\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>IBM=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -67,6 +67,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileDataLink.cpp" />
+    <ClCompile Include="MAVLink.cpp" />
+    <ClCompile Include="SpoofDataLink.cpp" />
     <ClCompile Include="UDPDataLink.cpp" />
     <ClCompile Include="XPlaneMAVLink.cpp" />
     <ClCompile Include="XPlaneMAVLinkWin.cpp" />
@@ -77,7 +80,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DataLink.h" />
+    <ClInclude Include="DebugDataLink.h" />
+    <ClInclude Include="FileDataLink.h" />
     <ClInclude Include="MAVLink.h" />
+    <ClInclude Include="SpoofDataLink.h" />
     <ClInclude Include="UDPDataLink.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
