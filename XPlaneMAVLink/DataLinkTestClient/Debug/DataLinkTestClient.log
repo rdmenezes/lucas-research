@@ -1,4 +1,4 @@
-﻿Build started 03/01/2012 16:55:06.
+﻿Build started 03/01/2012 17:24:13.
      1>Project "C:\Users\Owen\Documents\lucas-research\XPlaneMAVLink\DataLinkTestClient\DataLinkTestClient.vcxproj" on node 3 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\DataLinkTestClient.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -737,7 +737,6 @@
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(30): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(50): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(51): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
-     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\mavlink.h(66): warning C4067: unexpected tokens following preprocessor directive - expected a newline
        ManifestResourceCompile:
          All outputs are up-to-date.
        Link:
@@ -759,4 +758,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.16
+Time Elapsed 00:00:01.12

@@ -12,9 +12,11 @@
 
 #ifdef _WIN32
 	#include <windows.h>
+#else
+	#include <sys/time.h>
 #endif
 #include <stdio.h>
-#include <sys/time.h>
+
 #include <map>
 #include "mavlink_types.h"
 #include "common/common.h"

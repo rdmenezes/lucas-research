@@ -1,9 +1,9 @@
-﻿Build started 03/01/2012 16:55:04.
+﻿Build started 03/01/2012 17:24:11.
      1>Project "C:\Users\Owen\Documents\lucas-research\XPlaneMAVLink\XPlaneMAVLink\XPlaneMAVLink.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\XPlaneMAVLink.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Wrappers" /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Widgets" /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\XPLM" /I"C:\Users\Owen\Documents\lucas-research\include" /ZI /nologo /W3 /WX- /Od /Oy- /D IBM=1 /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt MAVLink.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Wrappers" /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Widgets" /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\XPLM" /I"C:\Users\Owen\Documents\lucas-research\include" /ZI /nologo /W3 /WX- /Od /Oy- /D IBM=1 /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt FileDataLink.cpp MAVLink.cpp SpoofDataLink.cpp
          MAVLink.cpp
      1>c:\users\owen\documents\lucas-research\include\protocol.h(66): warning C4244: '=' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\protocol.h(95): warning C4244: '=' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
@@ -736,7 +736,19 @@
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(30): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(50): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(51): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
-     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\mavlink.h(66): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+         FileDataLink.cpp
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\filedatalink.cpp(92): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\filedatalink.cpp(94): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\filedatalink.cpp(108): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\filedatalink.cpp(150): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(325) : see declaration of 'sscanf'
+         Generating Code...
+         Compiling...
+         SpoofDataLink.cpp
+         Generating Code...
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\XPlaneMAVLink.xpl.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.lib" /MACHINE:X86 /DLL Debug\FileDataLink.obj
          Debug\MAVLink.obj
@@ -758,4 +770,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.90
+Time Elapsed 00:00:02.01

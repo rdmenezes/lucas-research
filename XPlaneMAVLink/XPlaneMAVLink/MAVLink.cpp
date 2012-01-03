@@ -67,7 +67,7 @@ int MAVLink::getTime_ms() {
 		+ st.wSecond*1000
 		+ st.wMinute*1000*60
 		+ st.wHour*1000*60*60;
-#elif __linx__
+#elif __linux__
 	timeval tim;
 	gettimeofday(&tim, NULL);
         return (int)(tim.tv_sec*1000.0+(tim.tv_usec/1000));
