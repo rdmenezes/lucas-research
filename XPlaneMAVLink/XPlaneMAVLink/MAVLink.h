@@ -33,7 +33,7 @@
 //Structure for local storage of messages
 struct MAVLinkMessage {
 	mavlink_message_t msg;
-	int timeReceived;
+	long timeReceived;
 };
 
 class MAVLink {
@@ -74,7 +74,7 @@ private:
 	void addMessage();
 	bool sendMessage();
 	MAVLinkMessage * findMessage(int id);
-	int getTime_ms();
+	long getTime_ms();
 	bool checkTimeout(MAVLinkMessage *mm, int timeout);
 
 	DataLink *link;

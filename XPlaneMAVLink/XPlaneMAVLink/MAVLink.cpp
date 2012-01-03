@@ -59,7 +59,7 @@ bool MAVLink::sendMessage() {
 /* Get the time (Milliseconds since midnight)
  *	TODO: update this to the UNIX epoch
  */
-int MAVLink::getTime_ms() {
+long MAVLink::getTime_ms() {
 #ifdef _WIN32
 	SYSTEMTIME st;
 	GetSystemTime(&st);
@@ -67,10 +67,10 @@ int MAVLink::getTime_ms() {
 		+ st.wSecond*1000
 		+ st.wMinute*1000*60
 		+ st.wHour*1000*60*60;
-#elif __linx__
+#elif __linux__
 	timeval tim;
 	gettimeofday(&tim, NULL);
-        return (int)(tim.tv_sec*1000.0+(tim.tv_usec/1000));
+        return (long)(tim.tv_sec*1000+(tim.tv_usec/1000));
 
 #endif
 }
