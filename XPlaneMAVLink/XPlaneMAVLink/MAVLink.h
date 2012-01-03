@@ -10,11 +10,14 @@
 #ifndef MAVLink_h
 #define MAVLink_h
 
+#ifdef _WIN32
+	#include <windows.h>
+#endif
 #include <stdio.h>
-#include <windows.h>
+#include <sys/time.h>
 #include <map>
 #include "mavlink_types.h"
-#include "common\common.h"
+#include "common/common.h"
 #include "DataLink.h"
 
 //send/receive buffer size
@@ -35,6 +38,7 @@ struct MAVLinkMessage {
 
 class MAVLink {
 public:
+#ifdef _WIN32
 	__declspec( dllexport ) MAVLink(uint8_t mySystemId, uint8_t myComponentId, DataLink *link);
 	__declspec( dllexport ) void setTargetComponent(uint8_t targetSystemId, uint8_t targetComponentId);
 	__declspec( dllexport ) bool receiveMessage();
@@ -49,6 +53,22 @@ public:
 	__declspec( dllexport ) bool getRawGPS(int &fix, float &lat, float &lng, float &alt, float &eph, float &epv, float &v, float &crs);
 	__declspec( dllexport ) bool sendVFRHUD(float airspeed, float groundspeed, int16_t heading, uint16_t throttle, float alt, float climb);
 	__declspec( dllexport ) bool getVFRHUD(float &airspeed, float &groundspeed, int16_t &heading, uint16_t &throttle, float &alt, float &climb);
+#else
+	MAVLink(uint8_t mySystemId, uint8_t myComponentId, DataLink *link);
+	void setTargetComponent(uint8_t targetSystemId, uint8_t targetComponentId);
+	bool receiveMessage();
+	
+	/* Senders and Getters */
+	bool sendHeartbeat(uint8_t type, uint8_t autopilotType);
+	bool sendAttitude(float roll, float pitch, float yaw, float p, float q, float r);
+	bool getAttitude(float &roll, float &pitch, float &yaw, float &p, float &q, float &r);
+	bool sendRCOverride(uint16_t c1, uint16_t c2, uint16_t c3, uint16_t c4, uint16_t c5, uint16_t c6, uint16_t c7, uint16_t c8);
+	bool getRCOverride(uint16_t &c1, uint16_t &c2, uint16_t &c3, uint16_t &c4, uint16_t &c5, uint16_t &c6, uint16_t &c7, uint16_t &c8);
+	bool sendRawGPS(int fix, float lat, float lng, float alt, float eph, float epv, float v, float crs);
+	bool getRawGPS(int &fix, float &lat, float &lng, float &alt, float &eph, float &epv, float &v, float &crs);
+	bool sendVFRHUD(float airspeed, float groundspeed, int16_t heading, uint16_t throttle, float alt, float climb);
+	bool getVFRHUD(float &airspeed, float &groundspeed, int16_t &heading, uint16_t &throttle, float &alt, float &climb);
+#endif
 	
 private:
 	void addMessage();
@@ -63,7 +83,9 @@ private:
 	mavlink_message_t msg;
 	mavlink_status_t status;
 	uint8_t buffer[MAVLINK_BUFFER_SIZE];
-#ifdef _WIN32 || __linux__
+#ifdef _WIN32 
+	std::map<int, MAVLinkMessage> MessageMap;
+#elif __linux__
 	std::map<int, MAVLinkMessage> MessageMap;
 #else
 	MAVLinkMessage MessageMap[255];

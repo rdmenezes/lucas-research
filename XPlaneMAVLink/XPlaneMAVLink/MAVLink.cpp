@@ -60,12 +60,19 @@ bool MAVLink::sendMessage() {
  *	TODO: update this to the UNIX epoch
  */
 int MAVLink::getTime_ms() {
+#ifdef _WIN32
 	SYSTEMTIME st;
 	GetSystemTime(&st);
     return st.wMilliseconds
 		+ st.wSecond*1000
 		+ st.wMinute*1000*60
 		+ st.wHour*1000*60*60;
+#elif __linx__
+	timeval tim;
+	gettimeofday(&tim, NULL);
+        return (int)(tim.tv_sec*1000.0+(tim.tv_usec/1000));
+
+#endif
 }
 
 /* Check the for the timeout condition for a specific message

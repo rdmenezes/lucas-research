@@ -147,7 +147,7 @@ int FileDataLink::decodeHex(char *message, int bytes) {
 		length++;
 		/* Decode each character one at a time */
 		for (int i=0; i<length/3; i++) {
-			sscanf((char*)tmpMessage+i*3,"%X",&message[i]);
+			sscanf((char*)tmpMessage+i*3,"%X",(unsigned int*)&message[i]);
 		}
 		return length/3;
 	} else {

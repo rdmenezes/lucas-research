@@ -6,7 +6,11 @@
 
 class DebugDataLink : public FileDataLink {
 public:
+#ifdef _WIN32
 	__declspec( dllexport ) DebugDataLink() : FileDataLink(stdout, stdin) {}
+#else
+	DebugDataLink() : FileDataLink(stdout, stdin) {}
+#endif
 };
 
 #endif

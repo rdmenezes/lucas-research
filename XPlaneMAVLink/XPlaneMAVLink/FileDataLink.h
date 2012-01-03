@@ -14,6 +14,7 @@
 
 class FileDataLink : public DataLink {
 public:
+#ifdef _WIN32
 	__declspec( dllexport ) FileDataLink(FILE * outputStream, FILE * inputStream);
 	__declspec( dllexport ) FileDataLink(const char * outputFile, const char * inputFile, bool append);
 	__declspec( dllexport ) bool connect();
@@ -22,6 +23,16 @@ public:
 	__declspec( dllexport ) bool disconnect();
 	__declspec( dllexport ) void setHexOutput(bool flag);
 	__declspec( dllexport ) void setHexInput(bool flag);
+#else
+	FileDataLink(FILE * outputStream, FILE * inputStream);
+	FileDataLink(const char * outputFile, const char * inputFile, bool append);
+	bool connect();
+	bool send(char * message, int bytes);
+	int receive(int bytes, char * message);
+	bool disconnect();
+	void setHexOutput(bool flag);
+	void setHexInput(bool flag);
+#endif
 
 private:
 	bool openOutputStream();
