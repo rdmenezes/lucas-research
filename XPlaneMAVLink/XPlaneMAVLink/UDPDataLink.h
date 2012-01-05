@@ -24,7 +24,7 @@
 
 
 
-class UDPDataLink : DataLink {
+class UDPDataLink : public DataLink {
 public:
 #ifdef _WIN32
 	__declspec( dllexport ) UDPDataLink(const char * address, int port);

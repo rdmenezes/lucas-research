@@ -1,10 +1,10 @@
-﻿Build started 03/01/2012 17:24:11.
+﻿Build started 05/01/2012 20:32:23.
      1>Project "C:\Users\Owen\Documents\lucas-research\XPlaneMAVLink\XPlaneMAVLink\XPlaneMAVLink.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\XPlaneMAVLink.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Wrappers" /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Widgets" /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\XPLM" /I"C:\Users\Owen\Documents\lucas-research\include" /ZI /nologo /W3 /WX- /Od /Oy- /D IBM=1 /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt FileDataLink.cpp MAVLink.cpp SpoofDataLink.cpp
-         MAVLink.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Wrappers" /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\Widgets" /I"C:\Users\Owen\Documents\lucas-research\SDK\CHeaders\XPLM" /I"C:\Users\Owen\Documents\lucas-research\include" /ZI /nologo /W3 /WX- /Od /Oy- /D IBM=1 /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt XPlaneMAVLink.cpp
+         XPlaneMAVLink.cpp
      1>c:\users\owen\documents\lucas-research\include\protocol.h(66): warning C4244: '=' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\protocol.h(95): warning C4244: '=' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\protocol.h(746): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
@@ -736,26 +736,56 @@
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(30): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(50): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
      1>c:\users\owen\documents\lucas-research\include\common\mavlink_msg_debug.h(51): warning C4244: 'argument' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
-         FileDataLink.cpp
-     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\filedatalink.cpp(92): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
-     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\filedatalink.cpp(94): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
-     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\filedatalink.cpp(108): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
-     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\filedatalink.cpp(150): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(325) : see declaration of 'sscanf'
-         Generating Code...
-         Compiling...
-         SpoofDataLink.cpp
-         Generating Code...
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\settingswindow.h(61): warning C4091: 'static ' : ignored on left of 'SettingsWindow' when no variable is declared
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(135): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(172): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(188): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(196): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(198): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(228): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(228): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(275): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(276): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(277): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(278): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(291): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(291): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(292): warning C4244: 'argument' : conversion from 'float' to 'uint16_t', possible loss of data
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(292): warning C4244: 'argument' : conversion from 'double' to 'int16_t', possible loss of data
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(296): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(321): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\string.h(105) : see declaration of 'strcpy'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(322): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\string.h(105) : see declaration of 'strcpy'
+     1>c:\users\owen\documents\lucas-research\xplanemavlink\xplanemavlink\xplanemavlink.cpp(323): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\string.h(105) : see declaration of 'strcpy'
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\XPlaneMAVLink.xpl.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.lib" /MACHINE:X86 /DLL Debug\FileDataLink.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\XPlaneMAVLink.xpl.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.lib" /MACHINE:X86 /DLL Debug\DataRef.obj
+         Debug\FileDataLink.obj
          Debug\MAVLink.obj
+         Debug\Settings.obj
+         Debug\SettingsWindow.obj
          Debug\SpoofDataLink.obj
+         Debug\TCPDataLink.obj
          Debug\UDPDataLink.obj
+         Debug\XPButton.obj
+         Debug\XPCheckButton.obj
+         Debug\XPLabel.obj
          Debug\XPlaneMAVLink.obj
          Debug\XPlaneMAVLinkWin.obj
+         Debug\XPObject.obj
+         Debug\XPTextField.obj
+         Debug\XPWindow.obj
          ..\..\SDK\Libraries\Win\XPLM.lib
          ..\..\SDK\Libraries\Win\XPWidgets.lib
          LINK : C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl not found or not built by the last incremental link; performing full link
@@ -770,4 +800,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.01
+Time Elapsed 00:00:04.08

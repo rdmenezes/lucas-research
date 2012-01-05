@@ -16,6 +16,12 @@
     <Filter Include="Libraries">
       <UniqueIdentifier>{3ef23f0e-570d-4e71-b8cf-e2545565c2a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\XPlane">
+      <UniqueIdentifier>{a7a87a9c-1205-47ff-9e53-8080f32c24cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\XPlane">
+      <UniqueIdentifier>{9fe4a8ab-0fd5-4359-a13b-399e395d7de1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="XPlaneMAVLinkWin.cpp">
@@ -34,6 +40,36 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SpoofDataLink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPDataLink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataRef.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XPButton.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPCheckButton.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPObject.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPWindow.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPLabel.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPTextField.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,6 +98,36 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SpoofDataLink.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPDataLink.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataRef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XPButton.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPObject.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPCheckButton.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPWindow.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPLabel.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPTextField.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

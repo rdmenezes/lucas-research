@@ -24,15 +24,16 @@ void MAVLink::setTargetComponent(uint8_t targetSystemId, uint8_t targetComponent
  *	get captured. If running on a PC you should consider threading a call to this
  *	function so it is called regularly in the background
  */
-bool MAVLink::receiveMessage() {
+int MAVLink::receiveMessage() {
+	if (link == NULL) { return -1; }
 	int msg_len = link->receive(MAVLINK_BUFFER_SIZE,(char*)buffer);
 	for (int i=0; i<msg_len; i++) {
 		if (mavlink_parse_char(0,buffer[i],&msg,&status)) {
 			addMessage();
-			return true;
+			return msg.msgid;
 		}
 	}
-	return false;
+	return -1;
 }
 
 /* Add the latest packet to local storage, overriding previous examples
@@ -52,6 +53,7 @@ void MAVLink::addMessage() {
  *	Returns true if successful, false otherwise
  */
 bool MAVLink::sendMessage() {
+	if (link == NULL) { return false; }
 	int msg_len = mavlink_msg_to_send_buffer(buffer, &msg);
 	return link->send((char *)buffer, msg_len);
 }
@@ -59,7 +61,7 @@ bool MAVLink::sendMessage() {
 /* Get the time (Milliseconds since midnight)
  *	TODO: update this to the UNIX epoch
  */
-int MAVLink::getTime_ms() {
+long MAVLink::getTime_ms() {
 #ifdef _WIN32
 	SYSTEMTIME st;
 	GetSystemTime(&st);
@@ -70,7 +72,7 @@ int MAVLink::getTime_ms() {
 #elif __linux__
 	timeval tim;
 	gettimeofday(&tim, NULL);
-        return (int)(tim.tv_sec*1000.0+(tim.tv_usec/1000));
+	return (long)(tim.tv_sec*1000.0+(tim.tv_usec/1000));
 
 #endif
 }
@@ -182,4 +184,66 @@ bool MAVLink::getVFRHUD(float &airspeed, float &groundspeed, int16_t &heading, u
 	alt = mavlink_msg_vfr_hud_get_alt(&mm->msg);
 	climb = mavlink_msg_vfr_hud_get_climb(&mm->msg);
 	return checkTimeout(mm,MAVLINK_VFR_HUD_TIMEOUT);
+}
+
+/* Raw Servo Output Sender */
+bool MAVLink::sendRawServos(uint16_t s1, uint16_t s2, uint16_t s3, uint16_t s4, uint16_t s5, uint16_t s6, uint16_t s7, uint16_t s8) {
+	mavlink_msg_servo_output_raw_pack(mySystemId,myComponentId,&msg,s1,s2,s3,s4,s5,s6,s7,s8);
+	return sendMessage();
+}
+
+/* Raw Servo Getter */
+bool MAVLink::getRawServos(uint16_t &s1, uint16_t &s2, uint16_t &s3, uint16_t &s4, uint16_t &s5, uint16_t &s6, uint16_t &s7, uint16_t &s8) {
+	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_SERVO_OUTPUT_RAW];
+	if (mm == NULL) {
+		return false;
+	}
+	s1 = mavlink_msg_servo_output_raw_get_servo1_raw(&mm->msg);
+	s2 = mavlink_msg_servo_output_raw_get_servo2_raw(&mm->msg);
+	s3 = mavlink_msg_servo_output_raw_get_servo3_raw(&mm->msg);
+	s4 = mavlink_msg_servo_output_raw_get_servo4_raw(&mm->msg);
+	s5 = mavlink_msg_servo_output_raw_get_servo5_raw(&mm->msg);
+	s6 = mavlink_msg_servo_output_raw_get_servo6_raw(&mm->msg);
+	s7 = mavlink_msg_servo_output_raw_get_servo7_raw(&mm->msg);
+	s8 = mavlink_msg_servo_output_raw_get_servo8_raw(&mm->msg);
+	return checkTimeout(mm,MAVLINK_SERVO_TIMEOUT);
+}
+
+/* Raw Servo Output Sender */
+bool MAVLink::sendScaledServos(int16_t s1, int16_t s2, int16_t s3, int16_t s4, int16_t s5, int16_t s6, int16_t s7, int16_t s8, uint8_t rssi) {
+	mavlink_msg_rc_channels_scaled_pack(mySystemId,myComponentId,&msg,s1,s2,s3,s4,s5,s6,s7,s8,rssi);
+	return sendMessage();
+}
+
+/* Raw Servo Getter */
+bool MAVLink::getScaledServos(int16_t &s1, int16_t &s2, int16_t &s3, int16_t &s4, int16_t &s5, int16_t &s6, int16_t &s7, int16_t &s8, uint8_t &rssi) {
+	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_RC_CHANNELS_SCALED];
+	if (mm == NULL) {
+		return false;
+	}
+	s1 = mavlink_msg_rc_channels_scaled_get_chan1_scaled(&mm->msg);
+	s2 = mavlink_msg_rc_channels_scaled_get_chan2_scaled(&mm->msg);
+	s3 = mavlink_msg_rc_channels_scaled_get_chan3_scaled(&mm->msg);
+	s4 = mavlink_msg_rc_channels_scaled_get_chan4_scaled(&mm->msg);
+	s5 = mavlink_msg_rc_channels_scaled_get_chan5_scaled(&mm->msg);
+	s6 = mavlink_msg_rc_channels_scaled_get_chan6_scaled(&mm->msg);
+	s7 = mavlink_msg_rc_channels_scaled_get_chan7_scaled(&mm->msg);
+	s8 = mavlink_msg_rc_channels_scaled_get_chan8_scaled(&mm->msg);
+	return checkTimeout(mm,MAVLINK_SERVO_TIMEOUT);
+}
+
+/* Mode Sender */
+bool MAVLink::sendMode(uint32_t mode) {
+	mavlink_msg_set_mode_pack(mySystemId,myComponentId,&msg,targetSystemId,mode);
+	return sendMessage();
+}
+
+/* Mode Getter */
+bool MAVLink::getMode(uint32_t &mode) {
+	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_SET_MODE];
+	if (mm == NULL) {
+		return false;
+	}
+	mode = mavlink_msg_set_mode_get_mode(&mm->msg);
+	return checkTimeout(mm,MAVLINK_MODE_TIMEOUT);
 }
