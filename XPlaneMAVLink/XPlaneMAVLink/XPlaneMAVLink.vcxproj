@@ -67,12 +67,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DataRef.cpp" />
     <ClCompile Include="FileDataLink.cpp" />
     <ClCompile Include="MAVLink.cpp" />
+    <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="SettingsWindow.cpp" />
     <ClCompile Include="SpoofDataLink.cpp" />
+    <ClCompile Include="TCPDataLink.cpp" />
     <ClCompile Include="UDPDataLink.cpp" />
+    <ClCompile Include="XPButton.cpp" />
+    <ClCompile Include="XPCheckButton.cpp" />
+    <ClCompile Include="XPLabel.cpp" />
     <ClCompile Include="XPlaneMAVLink.cpp" />
     <ClCompile Include="XPlaneMAVLinkWin.cpp" />
+    <ClCompile Include="XPObject.cpp" />
+    <ClCompile Include="XPTextField.cpp" />
+    <ClCompile Include="XPWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\SDK\Libraries\Win\XPLM.lib" />
@@ -80,11 +90,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DataLink.h" />
+    <ClInclude Include="DataRef.h" />
     <ClInclude Include="DebugDataLink.h" />
     <ClInclude Include="FileDataLink.h" />
     <ClInclude Include="MAVLink.h" />
+    <ClInclude Include="Settings.h" />
+    <ClInclude Include="SettingsWindow.h" />
     <ClInclude Include="SpoofDataLink.h" />
+    <ClInclude Include="TCPDataLink.h" />
     <ClInclude Include="UDPDataLink.h" />
+    <ClInclude Include="XPButton.h" />
+    <ClInclude Include="XPCheckButton.h" />
+    <ClInclude Include="XPLabel.h" />
+    <ClInclude Include="XPObject.h" />
+    <ClInclude Include="XPTextField.h" />
+    <ClInclude Include="XPWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

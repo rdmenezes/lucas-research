@@ -12,9 +12,11 @@
 
 #ifdef _WIN32
 	#include <windows.h>
+#else
+	#include <sys/time.h>
 #endif
 #include <stdio.h>
-#include <sys/time.h>
+
 #include <map>
 #include "mavlink_types.h"
 #include "common/common.h"
@@ -29,6 +31,8 @@
 #define MAVLINK_RC_OVERRIDE_TIMEOUT 1000
 #define MAVLINK_RAW_GPS_TIMEOUT 1000
 #define MAVLINK_VFR_HUD_TIMEOUT 1000
+#define MAVLINK_SERVO_TIMEOUT 1000
+#define MAVLINK_MODE_TIMEOUT 1000
 
 //Structure for local storage of messages
 struct MAVLinkMessage {
@@ -41,7 +45,7 @@ public:
 #ifdef _WIN32
 	__declspec( dllexport ) MAVLink(uint8_t mySystemId, uint8_t myComponentId, DataLink *link);
 	__declspec( dllexport ) void setTargetComponent(uint8_t targetSystemId, uint8_t targetComponentId);
-	__declspec( dllexport ) bool receiveMessage();
+	__declspec( dllexport ) int receiveMessage();
 	
 	/* Senders and Getters */
 	__declspec( dllexport ) bool sendHeartbeat(uint8_t type, uint8_t autopilotType);
@@ -53,10 +57,16 @@ public:
 	__declspec( dllexport ) bool getRawGPS(int &fix, float &lat, float &lng, float &alt, float &eph, float &epv, float &v, float &crs);
 	__declspec( dllexport ) bool sendVFRHUD(float airspeed, float groundspeed, int16_t heading, uint16_t throttle, float alt, float climb);
 	__declspec( dllexport ) bool getVFRHUD(float &airspeed, float &groundspeed, int16_t &heading, uint16_t &throttle, float &alt, float &climb);
+	__declspec( dllexport ) bool sendRawServos(uint16_t s1, uint16_t s2, uint16_t s3, uint16_t s4, uint16_t s5, uint16_t s6, uint16_t s7, uint16_t s8);
+	__declspec( dllexport ) bool getRawServos(uint16_t &s1, uint16_t &s2, uint16_t &s3, uint16_t &s4, uint16_t &s5, uint16_t &s6, uint16_t &s7, uint16_t &s8);
+	__declspec( dllexport ) bool sendScaledServos(int16_t s1, int16_t s2, int16_t s3, int16_t s4, int16_t s5, int16_t s6, int16_t s7, int16_t s8, uint8_t rssi);
+	__declspec( dllexport ) bool getScaledServos(int16_t &s1, int16_t &s2, int16_t &s3, int16_t &s4, int16_t &s5, int16_t &s6, int16_t &s7, int16_t &s8, uint8_t &rssi);
+	__declspec( dllexport ) bool sendMode(uint32_t mode);
+	__declspec( dllexport ) bool getMode(uint32_t &mode);
 #else
 	MAVLink(uint8_t mySystemId, uint8_t myComponentId, DataLink *link);
 	void setTargetComponent(uint8_t targetSystemId, uint8_t targetComponentId);
-	bool receiveMessage();
+	int receiveMessage();
 	
 	/* Senders and Getters */
 	bool sendHeartbeat(uint8_t type, uint8_t autopilotType);
