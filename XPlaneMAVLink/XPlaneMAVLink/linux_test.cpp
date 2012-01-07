@@ -3,9 +3,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include "DebugDataLink.h"
-#include "SpoofDataLink.h"
-#include "UDPDataLink.h"
+#include "TCPDataLink.h"
 #include "MAVLink.h"
 
 
@@ -17,7 +15,7 @@ int main()
 	float roll, pitch, yaw, p, q, r;
 	uint16_t c1, c2, c3, c4, c5, c6, c7, c8;
 
-	UDPDataLink * link = new UDPDataLink("131.231.124.198", 6432);
+	TCPDataLink * link = new TCPDataLink("131.231.124.198", 6432, false);
 	MAVLink * myMAV = new MAVLink(10,0,link);
 
 	myMAV->setTargetComponent(10,1);
