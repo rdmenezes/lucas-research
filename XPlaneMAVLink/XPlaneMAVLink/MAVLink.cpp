@@ -122,8 +122,7 @@ long MAVLink::getTime_ms() {
 #elif __linux__
 	timeval tim;
 	gettimeofday(&tim, NULL);
-	return (long)(tim.tv_sec*1000.0+(tim.tv_usec/1000));
-
+        return (long)(tim.tv_sec*1000+(tim.tv_usec/1000));
 #endif
 }
 

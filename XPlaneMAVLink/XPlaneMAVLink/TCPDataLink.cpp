@@ -43,7 +43,7 @@ bool TCPDataLink::disconnect() {
 	}
 	WSACleanup();
 #elif __linux__
-	close(udpSocket);
+	close(tcpSocket);
 #endif
 	return true;
 }
@@ -51,10 +51,16 @@ bool TCPDataLink::disconnect() {
 
 bool TCPDataLink::send(char * message, int bytes) {
 	int result = ::send(tcpSocket, message, bytes,0);
+#ifdef _WIN32
 	if (result == SOCKET_ERROR) {
 		printf("TCPDataLink failed to send. Error %d\n", WSAGetLastError());
 		return false;
 	}
+#elif __linux__
+	if (result == -1) {
+		fprintf(stderr,"TCPDataLink failed to send. Error %d\n", errno);
+	}
+#endif
 	return true;
 }
 
@@ -232,7 +238,7 @@ int TCPDataLink::receivePacket(int bytes, char * message) {
 		return -1;
 	}
 #elif __linux__
-	int result = recv(udpSocket, message, bytes, 0);
+	int result = recv(tcpSocket, message, bytes, 0);
 	if (result == -1) {
 		fprintf(stderr,"UDPDataLink failed to receive. Error %d\n", errno);
 	}
