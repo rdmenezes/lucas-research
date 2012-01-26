@@ -7,6 +7,8 @@ UDPDataLink::UDPDataLink(const char * address, int port) {
 	this->address = address;
 	this->port = port;
 	timeout = 1000;
+	sprintf(ident,"%s:%d", address, port);
+	sprintf(type,"UDP");
 }
 
 /* Destrctor for the UDPDataLink class.

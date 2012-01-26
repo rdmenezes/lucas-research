@@ -20,21 +20,21 @@
 	SOFTWARE.
 */
 
-/* MAVLink Interface for X-Plane v0.8
+/* MAVLink Interface for X-Plane v1.0
  *	Written by Owen McAree (o.mcaree@lucasresearch.co.uk)
  *
  *	Designed for the purpose of connected Ardupilot Mega (APM) to X-Plane directly
  *	without requiring the Mission Planner for the purpose of developing Simulink
  *	based control.
  *	Has been tested as working with ArduPlane (APM in fixed wing mode) in Software
- *	In Loop (SIL) mode using HIL_ATTITUDE and X-Plane v9.70 running on Windows
- *	Work is ongoing to support Hardware In Loop (HIL), ArduCopter, and X-Plane on
- *	Linux.
+ *	In Loop (SIL) and Hardware In Loop (HIL) modes using HIL_ATTITUDE and
+ *	X-Plane v9.70 running on Windows, work is ongoing to support Hardware In Loop
+ *	(HIL), ArduCopter, and X-Plane on Linux.
  */
 
 
 #define PI 3.14159
-#define VERSION 0.8
+#define VERSION 1.0
 #include <winsock2.h>
 #include <stdio.h>
 #include <string.h>
@@ -47,6 +47,7 @@
 #include "XPLMMenus.h"
 
 #include "TCPDataLink.h"
+#include "SerialDataLink.h"
 #include "MAVLink.h"
 #include "DataRef.h"
 #include "XPObject.h"
@@ -88,11 +89,12 @@ char controls[128];
 char attitude[128];
 char attitudeRates[128];
 char position[128];
-char velocity[128];
+char speedheight[128];
+char heading[128];
 char status[128];
 
 /* DataLink and MAVLink instances */
-TCPDataLink *link;
+DataLink *link;
 MAVLink *myMAV;
 bool connected = false;
 
@@ -109,7 +111,8 @@ bool setUpDataRefs() {
 	elevator.setMultiplier(10000.0);
 	aileron.setMultiplier(10000.0);
 	rudder.setMultiplier(10000.0);
-	throttle.setMultiplier(10000.0);
+	throttle.setMultiplier(20000.0);
+	throttle.setBias(-10000.0);
 
 	/* Angles/rates in to degrees */
 	phi.setMultiplier(PI/180.0);
@@ -149,6 +152,17 @@ void menuCallback(void *inMenuRef, void *inItemRef) {
 	}
 }
 
+
+void requestHILStreams() {
+	myMAV->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 1, 1);
+	myMAV->sendRequestStream(MAV_DATA_STREAM_POSITION, 3, 1);
+	myMAV->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1);
+	myMAV->sendRequestStream(MAV_DATA_STREAM_EXTRA2, 10, 1);
+	myMAV->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 3, 1);
+	myMAV->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 3, 1);
+	myMAV->sendRequestStream(MAV_DATA_STREAM_RAW_CONTROLLER, 50, 1);
+}
+
 /* This function is called when the SettingsWindow is closed
  *	SettingsWindow error checks all the parameters and won't let the user
  *	close the window until they are coherent, so no error checking needed
@@ -161,13 +175,6 @@ void menuCallback(void *inMenuRef, void *inItemRef) {
  *	
  */
 int connectCallback(SettingsWindow *w) {
-	
-	/* If the user wants a serial connection, appologise! */
-	if (w->getFlag() == 2) {
-		w->error("Sorry, Serial communication currently not supported!");
-		return 0; //exit immediately so we don't disconnect a current connection
-	}
-
 	/* Disconnect any links currently active */
 	sprintf(status,"Not connected");
 	if (link != NULL) {
@@ -176,11 +183,11 @@ int connectCallback(SettingsWindow *w) {
 		delete link;	//properly destroy the link, just to be sure
 		link = NULL;
 	}
-
 	/* If user doesn't want a link, don't give them one! */
 	if (w->getFlag() == 0) {
+		return 0;
 	}
-
+	sprintf(status,"Connecting...");
 	/* If the user wants a TCP link, try to create one */
 	if (w->getFlag() == 1) {
 		/* Get the IP */
@@ -193,16 +200,36 @@ int connectCallback(SettingsWindow *w) {
 
 		/* Give the user some (vaguely) useful message */
 		if (connected) {
-			sprintf(status,"Connected to %s:%d",ip,w->getPort());
+			sprintf(status,"Connected to %s",ip);
 		} else {
-			sprintf(status,"No Connection to %s:%d",ip,w->getPort());
+			sprintf(status,"No Connection to %s",ip);
+		}
+	}
+	/* If the user wants a serial connection, try to create one */
+	if (w->getFlag() == 2) {
+		char cp[128];
+		sprintf(cp,"%s",w->getComPort());
+		link = new SerialDataLink(cp,w->getBaudRate());
+		connected = link->connect();
+
+		/* Give the user some (vaguely) useful message */
+		if (connected) {
+			sprintf(status,"Connected to %s",cp);
+		} else {
+			sprintf(status,"No Connection to %s",cp);
 		}
 	}
 
 	/* Reinitialise MAVLink with the new DataLink */
 	myMAV = new MAVLink(255,0,link);
-	myMAV->setTargetComponent(1,1);
-
+	Sleep(1000);
+	if (connected && myMAV->getIDFromHeartbeat()) {
+		sprintf(status, "%s (%d:%d)", status, myMAV->getTargetSystem(), myMAV->getTargetComponent());
+		requestHILStreams();
+	} else {
+		sprintf(status, "%s (?:?)", status);
+	}
+	
 	return 0;
 }
 
@@ -242,20 +269,21 @@ void MyDrawWindowCallback(XPLMWindowID inWindowID, void *inRefcon) {
 	}
 
 	//draw a box and print the outputs
-	XPLMDrawTranslucentDarkBox(left, top-3*line, right, top-8*line-6);
+	XPLMDrawTranslucentDarkBox(left, top-3*line, right, top-9*line-6);
 	XPLMDrawString(white, left + 5, top - 4*line, (char*)("MAVLink HIL Outputs"), NULL, xplmFont_Basic);
 	XPLMDrawString(green, left + 10, top - 5*line, (char*)(position), NULL, xplmFont_Basic);	
-	XPLMDrawString(green, left + 10, top - 6*line, (char*)(velocity), NULL, xplmFont_Basic);	
-	XPLMDrawString(green, left + 10, top - 7*line, (char*)(attitude), NULL, xplmFont_Basic);
-	XPLMDrawString(green, left + 10, top - 8*line, (char*)(attitudeRates), NULL, xplmFont_Basic);
+	XPLMDrawString(green, left + 10, top - 6*line, (char*)(speedheight), NULL, xplmFont_Basic);	
+	XPLMDrawString(green, left + 10, top - 7*line, (char*)(heading), NULL, xplmFont_Basic);	
+	XPLMDrawString(green, left + 10, top - 8*line, (char*)(attitude), NULL, xplmFont_Basic);
+	XPLMDrawString(green, left + 10, top - 9*line, (char*)(attitudeRates), NULL, xplmFont_Basic);
 
 	//draw a box and print the inputs
-	XPLMDrawTranslucentDarkBox(left, top-9*line, right, top-11*line-5);
-	XPLMDrawString(white, left + 5, top - 10*line, (char*)("MAVLink HIL Inputs"), NULL, xplmFont_Basic);
+	XPLMDrawTranslucentDarkBox(left, top-10*line, right, top-12*line-5);
+	XPLMDrawString(white, left + 5, top - 11*line, (char*)("MAVLink HIL Inputs"), NULL, xplmFont_Basic);
 	if (connected) {
-		XPLMDrawString(green, left + 10, top - 11*line, (char*)(controls), NULL, xplmFont_Basic);
+		XPLMDrawString(green, left + 10, top - 12*line, (char*)(controls), NULL, xplmFont_Basic);
 	} else {
-		XPLMDrawString(red, left + 10, top - 11*line, (char*)("No connection"), NULL, xplmFont_Basic);
+		XPLMDrawString(red, left + 10, top - 12*line, (char*)("No connection"), NULL, xplmFont_Basic);
 	}
 }                                   
 
@@ -273,7 +301,8 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 
 	//Write status strings
 	sprintf(position,"Position: %f %f", latitude.getDouble(), longitude.getDouble());
-	sprintf(velocity, "IAS: %-4.1fm/s Hdg: %03.0f Trk: %03.0f", airspeed.getFloat(), psi.getFloat()*180/PI, track.getFloat());
+	sprintf(speedheight, "IAS: %-4.1fm/s G/S: %-4.1fm/s Alt: %-5.1fm", airspeed.getFloat(), groundspeed.getFloat(), altitude.getFloat());
+	sprintf(heading, "Hdg: %03.0f Trk: %03.0f", psi.getFloat()*180/PI, track.getFloat());
 	sprintf(attitude, "phi: %-5.2f theta: %-5.2f psi %-5.2f",phi.getFloat(), theta.getFloat(), psi.getFloat());
 	sprintf(attitudeRates, "P: %-5.2f Q: %-5.2f R: %-5.2f",P.getFloat(), Q.getFloat(), R.getFloat());
 	
@@ -293,6 +322,10 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	
 	//get the servo positions
 	long t = myMAV->getScaledServos(s1,s2,s3,s4,s5,s6,s7,s8,rssi);
+	if (s3 < -10000) {
+		s3 = -10000;
+	}
+
 	sprintf(controls,"A:%-4.0f E:%-4.0f T:%-4.0f R:%-4.0f",(s1/100.0),(s2/100.0),(50.0+s3/200.0),(s4/100.0));
 
 	//Set the control positions
@@ -305,11 +338,17 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	return -1.0;
 }
 
+int myMouseClickCallback(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus inMouse, void *inRefcon) {
+	connectCallback(w);
+	return 1;
+}
+
+
 /* Initialise a panel to display status info in the top left */
 bool setUpStatusPanel() {
 	int width, height;
 	XPLMGetScreenSize(&width,&height);
-	gWindow = XPLMCreateWindow(20, height-20, 240, height-160, 1, MyDrawWindowCallback, NULL, NULL, NULL);
+	gWindow = XPLMCreateWindow(20, height-20, 260, height-160, 1, MyDrawWindowCallback, NULL, myMouseClickCallback, NULL);
 	return true;
 }
 

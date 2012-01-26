@@ -1,6 +1,7 @@
 #ifndef SpoofDataLink_h
 #define SpoofDataLink_h
 
+#include <stdio.h>
 #include <string.h>
 #include "DataLink.h"
 

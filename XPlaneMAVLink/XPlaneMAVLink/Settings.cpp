@@ -53,12 +53,12 @@ bool Settings::setPort(int port) {
 	return true;
 }
 
-/* NO VALIDATION FOR COMPORT AS NOT CURRENTLY SUPPORTED! */
+/* NO VALIDATION FOR COMPORT */
 bool Settings::setComPort(char * com) {
 	sprintf(this->com,"%s",com);
 	return true;
 }
-/* NO VALIDATION FOR BAUD RATE AS NOT CURRENTLY SUPPORTED! */
+/* NO VALIDATION FOR BAUD RATE */
 bool Settings::setBaudRate(int baud) {
 	this->baud = baud;
 	return true;

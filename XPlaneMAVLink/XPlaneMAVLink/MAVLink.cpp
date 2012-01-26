@@ -1,11 +1,15 @@
 #include "MAVLink.h"
 
+std::map<std::string, MAVLinkMessage> MAVLink::MessageMap;
+
 /* Constructor for the MAVLink class
  *	Takes the id's of this system and component and a pointer to the datalink to be used
  */
 MAVLink::MAVLink(uint8_t mySystemId, uint8_t myComponentId, DataLink *link) {
 	this->mySystemId = mySystemId;
 	this->myComponentId = myComponentId;
+	this->targetSystemId = -1;
+	this->targetComponentId = -1;
 	this->link = link;
 }
 
@@ -18,6 +22,35 @@ void MAVLink::setTargetComponent(uint8_t targetSystemId, uint8_t targetComponent
 	this->targetComponentId = targetComponentId;
 }
 
+
+int MAVLink::getTargetComponent() {
+	return targetComponentId;
+}
+int MAVLink::getTargetSystem() {
+	return targetSystemId;
+}
+
+bool MAVLink::getIDFromHeartbeat() {
+	std::map<std::string,MAVLinkMessage>::iterator it;
+	for (int i = 0; i<1000; i++) {
+		receiveMessage();
+		for (it = MessageMap.begin(); it != MessageMap.end(); it++) {
+			int s, c, k = -1;
+			sscanf((it->first).c_str(),"%d:%d %d", &s, &c, &k);
+			if (k == 0) {
+				this->targetSystemId = s;
+				this->targetComponentId = c;
+				return true;
+			}
+		}
+		Sleep(10);
+	}
+
+	this->targetSystemId = -1;
+	this->targetComponentId = -1;
+	return false;
+}
+
 /* Receive a message from the DataLink
  *	This stores the latest message received for use by the getters
  *	This function should be called at least once per loop to ensure all packets
@@ -25,26 +58,42 @@ void MAVLink::setTargetComponent(uint8_t targetSystemId, uint8_t targetComponent
  *	function so it is called regularly in the background
  */
 int MAVLink::receiveMessage() {
+	mavlink_message_t msg;
+	mavlink_status_t status;
+	uint8_t buffer[MAVLINK_BUFFER_SIZE];
 	if (link == NULL) { return -1; }
 	int msg_len = link->receive(MAVLINK_BUFFER_SIZE,(char*)buffer);
-	for (int i=0; i<msg_len; i++) {
+	int i;
+	for (i=0; i<msg_len; i++) {
 		if (mavlink_parse_char(0,buffer[i],&msg,&status)) {
-			addMessage();
+			addMessage(msg);
 			return msg.msgid;
 		}
 	}
 	return -1;
 }
 
+MAVLinkMessage * MAVLink::findMessage(int id) {
+	char key[16];
+	sprintf(key,"%d:%d %d", targetSystemId, targetComponentId, id);
+	if (MessageMap.find(key) != MessageMap.end()) {
+		return &MessageMap[key];
+	} else {
+		return NULL;
+	}
+}
+
 /* Add the latest packet to local storage, overriding previous examples
  *	Time of receipt is captured to allow the timeout conditions to be
  *	evaluated by the getters
  */
-void MAVLink::addMessage() {
+void MAVLink::addMessage(mavlink_message_t &msg) {
 	MAVLinkMessage mm;
 	mm.msg = msg;
 	mm.timeReceived = getTime_ms();
-	MessageMap[msg.msgid] = mm;
+	char key[16];
+	sprintf(key,"%d:%d %d", msg.sysid, msg.compid, msg.msgid);
+	MessageMap[key] = mm;
 }
 
 /* Send a message
@@ -52,7 +101,8 @@ void MAVLink::addMessage() {
  *	to send it to the DataLink.
  *	Returns true if successful, false otherwise
  */
-bool MAVLink::sendMessage() {
+bool MAVLink::sendMessage(mavlink_message_t &msg) {
+	uint8_t buffer[MAVLINK_BUFFER_SIZE];
 	if (link == NULL) { return false; }
 	int msg_len = mavlink_msg_to_send_buffer(buffer, &msg);
 	return link->send((char *)buffer, msg_len);
@@ -95,18 +145,20 @@ bool MAVLink::checkTimeout(MAVLinkMessage *mm, int timeout) {
 
 /* Heatbeat */
 bool MAVLink::sendHeartbeat(uint8_t type, uint8_t autopilotType) {
+	mavlink_message_t msg;
 	mavlink_msg_heartbeat_pack(mySystemId,myComponentId,&msg,type,autopilotType);
-	return sendMessage();
+	return sendMessage(msg);
 }
 
 /* Attitude Sender */
 bool MAVLink::sendAttitude(float roll, float pitch, float yaw, float p, float q, float r) {
+	mavlink_message_t msg;
 	mavlink_msg_attitude_pack(mySystemId,myComponentId,&msg,getTime_ms(),roll,pitch,yaw,p,q,r);
-	return sendMessage();
+	return sendMessage(msg);
 }
 /* Attitude Getter */
 bool MAVLink::getAttitude(float &roll, float &pitch, float &yaw, float &p, float &q, float &r) {
-	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_ATTITUDE];
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_ATTITUDE);
 	if (mm == NULL) {
 		return false;
 	}
@@ -121,13 +173,14 @@ bool MAVLink::getAttitude(float &roll, float &pitch, float &yaw, float &p, float
 
 /* RC Override Sender */
 bool MAVLink::sendRCOverride(uint16_t c1, uint16_t c2, uint16_t c3, uint16_t c4, uint16_t c5, uint16_t c6, uint16_t c7, uint16_t c8) {
+	mavlink_message_t msg;
 	mavlink_msg_rc_channels_override_pack(mySystemId,myComponentId,&msg,targetSystemId,targetComponentId,c1,c2,c3,c4,c5,c6,c7,c8);
-	return sendMessage();
+	return sendMessage(msg);
 }
 
 /* RC Override Getter */
 bool MAVLink::getRCOverride(uint16_t &c1, uint16_t &c2, uint16_t &c3, uint16_t &c4, uint16_t &c5, uint16_t &c6, uint16_t &c7, uint16_t &c8) {
-	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE];
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE);
 	if (mm == NULL) {
 		return false;
 	}
@@ -144,13 +197,14 @@ bool MAVLink::getRCOverride(uint16_t &c1, uint16_t &c2, uint16_t &c3, uint16_t &
 
 /* Raw GPS Sender */
 bool MAVLink::sendRawGPS(int fix, float lat, float lng, float alt, float eph, float epv, float v, float crs) {
+	mavlink_message_t msg;
 	mavlink_msg_gps_raw_pack(mySystemId,myComponentId,&msg,getTime_ms(),fix,lat,lng,alt,eph,epv,v,crs);
-	return sendMessage();
+	return sendMessage(msg);
 }
 
 /* Raw GPS Getter */
 bool MAVLink::getRawGPS(int &fix, float &lat, float &lng, float &alt, float &eph, float &epv, float &v, float &crs) {
-	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_GPS_RAW];
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_GPS_RAW);
 	if (mm == NULL) {
 		return false;
 	}
@@ -165,15 +219,38 @@ bool MAVLink::getRawGPS(int &fix, float &lat, float &lng, float &alt, float &eph
 	return checkTimeout(mm,MAVLINK_RAW_GPS_TIMEOUT);
 }
 
+bool MAVLink::sendGlobalPositionInt(int32_t lat, int32_t lng, int32_t alt, int16_t vx, int16_t vy, int16_t vz) {
+	mavlink_message_t msg;
+	mavlink_msg_global_position_int_pack(mySystemId,myComponentId,&msg,lat,lng,alt,vx,vy,vz);
+	return sendMessage(msg);
+}
+bool MAVLink::getGlobalPositionInt(int32_t &lat, int32_t &lng, int32_t &alt, int16_t &vx, int16_t &vy, int16_t &vz) {
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_GLOBAL_POSITION_INT);
+	if (mm == NULL) {
+		return false;
+	}
+	lat = mavlink_msg_global_position_int_get_lat(&mm->msg);
+	lng = mavlink_msg_global_position_int_get_lon(&mm->msg);
+	alt = mavlink_msg_global_position_int_get_alt(&mm->msg);
+	vx = mavlink_msg_global_position_int_get_vx(&mm->msg);
+	vy = mavlink_msg_global_position_int_get_vy(&mm->msg);
+	vz = mavlink_msg_global_position_int_get_vz(&mm->msg);
+	
+	return checkTimeout(mm,MAVLINK_RAW_GPS_TIMEOUT);
+}
+
+
+
 /* VFR HUD Sender */
 bool MAVLink::sendVFRHUD(float airspeed, float groundspeed, int16_t heading, uint16_t throttle, float alt, float climb) {
+	mavlink_message_t msg;
 	mavlink_msg_vfr_hud_pack(mySystemId,myComponentId,&msg,airspeed,groundspeed,heading,throttle,alt,climb);
-	return sendMessage();
+	return sendMessage(msg);
 }
 
 /* VFR HUD Getter */
 bool MAVLink::getVFRHUD(float &airspeed, float &groundspeed, int16_t &heading, uint16_t &throttle, float &alt, float &climb) {
-	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_VFR_HUD];
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_VFR_HUD);
 	if (mm == NULL) {
 		return false;
 	}
@@ -188,13 +265,14 @@ bool MAVLink::getVFRHUD(float &airspeed, float &groundspeed, int16_t &heading, u
 
 /* Raw Servo Output Sender */
 bool MAVLink::sendRawServos(uint16_t s1, uint16_t s2, uint16_t s3, uint16_t s4, uint16_t s5, uint16_t s6, uint16_t s7, uint16_t s8) {
+	mavlink_message_t msg;
 	mavlink_msg_servo_output_raw_pack(mySystemId,myComponentId,&msg,s1,s2,s3,s4,s5,s6,s7,s8);
-	return sendMessage();
+	return sendMessage(msg);
 }
 
 /* Raw Servo Getter */
 bool MAVLink::getRawServos(uint16_t &s1, uint16_t &s2, uint16_t &s3, uint16_t &s4, uint16_t &s5, uint16_t &s6, uint16_t &s7, uint16_t &s8) {
-	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_SERVO_OUTPUT_RAW];
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_SERVO_OUTPUT_RAW);
 	if (mm == NULL) {
 		return false;
 	}
@@ -211,13 +289,14 @@ bool MAVLink::getRawServos(uint16_t &s1, uint16_t &s2, uint16_t &s3, uint16_t &s
 
 /* Raw Servo Output Sender */
 bool MAVLink::sendScaledServos(int16_t s1, int16_t s2, int16_t s3, int16_t s4, int16_t s5, int16_t s6, int16_t s7, int16_t s8, uint8_t rssi) {
+	mavlink_message_t msg;
 	mavlink_msg_rc_channels_scaled_pack(mySystemId,myComponentId,&msg,s1,s2,s3,s4,s5,s6,s7,s8,rssi);
-	return sendMessage();
+	return sendMessage(msg);
 }
 
 /* Raw Servo Getter */
 bool MAVLink::getScaledServos(int16_t &s1, int16_t &s2, int16_t &s3, int16_t &s4, int16_t &s5, int16_t &s6, int16_t &s7, int16_t &s8, uint8_t &rssi) {
-	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_RC_CHANNELS_SCALED];
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_RC_CHANNELS_SCALED);
 	if (mm == NULL) {
 		return false;
 	}
@@ -234,16 +313,42 @@ bool MAVLink::getScaledServos(int16_t &s1, int16_t &s2, int16_t &s3, int16_t &s4
 
 /* Mode Sender */
 bool MAVLink::sendMode(uint32_t mode) {
+	mavlink_message_t msg;
 	mavlink_msg_set_mode_pack(mySystemId,myComponentId,&msg,targetSystemId,mode);
-	return sendMessage();
+	return sendMessage(msg);
 }
 
 /* Mode Getter */
 bool MAVLink::getMode(uint32_t &mode) {
-	MAVLinkMessage * mm = &MessageMap[MAVLINK_MSG_ID_SET_MODE];
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_SET_MODE);
 	if (mm == NULL) {
 		return false;
 	}
 	mode = mavlink_msg_set_mode_get_mode(&mm->msg);
 	return checkTimeout(mm,MAVLINK_MODE_TIMEOUT);
+}
+
+/* Attitude Command Sender */
+bool MAVLink::sendAttitudeCommand(float roll, float pitch, float yaw, float thrust) {
+	mavlink_message_t msg;
+	mavlink_msg_set_roll_pitch_yaw_thrust_pack(mySystemId,myComponentId,&msg,targetSystemId,targetComponentId,roll,pitch,yaw,thrust);
+	return sendMessage(msg);
+}
+/* Attitude Command Getter */
+bool MAVLink::getAttitudeCommand(float &roll, float &pitch, float &yaw, float &thrust) {
+	MAVLinkMessage * mm = findMessage(MAVLINK_MSG_ID_SET_ROLL_PITCH_YAW_THRUST);
+	if (mm == NULL) {
+		return false;
+	}
+	roll = mavlink_msg_set_roll_pitch_yaw_thrust_get_roll(&mm->msg);
+	pitch = mavlink_msg_set_roll_pitch_yaw_thrust_get_pitch(&mm->msg);
+	yaw = mavlink_msg_set_roll_pitch_yaw_thrust_get_yaw(&mm->msg);
+	thrust = mavlink_msg_set_roll_pitch_yaw_thrust_get_thrust(&mm->msg);
+	return checkTimeout(mm,MAVLINK_ATTITUDE_TIMEOUT);
+}
+
+bool MAVLink::sendRequestStream(uint8_t streamId, uint16_t steamRate, uint8_t startStop) {
+	mavlink_message_t msg;
+	mavlink_msg_request_data_stream_pack(mySystemId, myComponentId, &msg, targetSystemId, targetComponentId, streamId, steamRate, startStop);
+	return sendMessage(msg);
 }

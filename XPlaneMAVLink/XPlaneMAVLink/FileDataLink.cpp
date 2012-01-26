@@ -8,6 +8,8 @@ FileDataLink::FileDataLink(FILE * outputStream, FILE * inputStream) {
 	this->hexOut = false;
 	outputFile = NULL;
 	inputFile = NULL;
+	sprintf(ident,"I: %s\nO: %s", inputStream, outputStream);
+	sprintf(type,"File");
 }
 
 /* Constructor for the FileDataLink class, assuming class is responsible for the streams */
@@ -17,6 +19,8 @@ FileDataLink::FileDataLink(const char * outputFile, const char * inputFile, bool
 	this->append = append;
 	this->hexIn = false;
 	this->hexOut = false;
+	sprintf(ident,"I: %s\nO: %s", inputStream, outputStream);
+	sprintf(type,"File");
 }
 
 /* Connect function (terminology inherited from DataLink interface)

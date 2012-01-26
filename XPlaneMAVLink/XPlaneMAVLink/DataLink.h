@@ -7,6 +7,10 @@ public:
 	virtual bool send(char * message, int bytes) = 0;
 	virtual int receive(int bytes, char * message) = 0;
 	virtual bool disconnect() = 0;
+	char * getIdentifier() { return ident;};
+	char * getType() { return type;};
+protected:
+	char ident[128];
+	char type[128];
 };
-
 #endif

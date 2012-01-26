@@ -4,6 +4,8 @@ TCPDataLink::TCPDataLink(const char * address, int port, bool server) {
 	this->address = address;
 	this->port = port;
 	timeout = 1000;
+	sprintf(ident,"%s:%d", address, port);
+	sprintf(type,"TCP");
 	if (server) {
 		fprintf(stderr, "TCP server requested in TCPDataLink, this is currently not supported!\n");
 	}
@@ -24,6 +26,7 @@ bool TCPDataLink::connect() {
 			setupLocalInterface(port) &&
 			setupDestinationAddress(address, port) &&
 			createSocket() &&
+			setReuseAddress(true) &&
 			connectAsClient();
 	
 }
@@ -44,7 +47,6 @@ bool TCPDataLink::disconnect() {
 #endif
 	return true;
 }
-
 
 
 bool TCPDataLink::send(char * message, int bytes) {
@@ -78,16 +80,35 @@ bool TCPDataLink::socketDataAvailable() {
 
 	int b = select(tcpSocket+1, &socketRead, 0, 0, &socketTimeout);
 
-	if (b <= 0) {
+	if (b == 0) {
 //        	printf("No reply!\n");
 		return false;
-    	}
+    	} 
+	if (b == SOCKET_ERROR) {
+		return false;
+	}
 	if (FD_ISSET(tcpSocket, &socketRead)) {
 		return true;
 	}
 	return false;
 }
 
+bool TCPDataLink::setReuseAddress(bool flag) {
+	char optval = (char)flag;
+	int result = setsockopt(tcpSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+#ifdef _WIN32
+	if (result == SOCKET_ERROR) {
+		fprintf(stderr, "Unable to set REUSEADDR option in UDPDataStream. Error %d\n", WSAGetLastError());
+		return false;
+	}
+#elif __linux__
+	if (result == -1) {
+		//This appears not to work at all on linux, so ignore the error for now!
+		//fprintf(stderr,"Unable to set REUSEADDR option in UDPDataStream. Error %d\n", errno);
+	}
+#endif
+	return true;
+}
 
 
 

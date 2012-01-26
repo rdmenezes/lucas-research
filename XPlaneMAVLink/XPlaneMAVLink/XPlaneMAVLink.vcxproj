@@ -70,6 +70,7 @@
     <ClCompile Include="DataRef.cpp" />
     <ClCompile Include="FileDataLink.cpp" />
     <ClCompile Include="MAVLink.cpp" />
+    <ClCompile Include="SerialDataLink.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SettingsWindow.cpp" />
     <ClCompile Include="SpoofDataLink.cpp" />
@@ -94,6 +95,7 @@
     <ClInclude Include="DebugDataLink.h" />
     <ClInclude Include="FileDataLink.h" />
     <ClInclude Include="MAVLink.h" />
+    <ClInclude Include="SerialDataLink.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SettingsWindow.h" />
     <ClInclude Include="SpoofDataLink.h" />

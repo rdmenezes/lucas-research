@@ -36,8 +36,8 @@ bool DataRef::setFloat(float val) {
 	return true;
 }
 bool DataRef::setFloat(int index, float val) {
-	val = (val-b)/m;
-	XPLMSetDatavf(ref,&val,index,1);
+	float v = (val-b)/m;
+	XPLMSetDatavf(ref,&v,index,1);
 	return true;
 }
 

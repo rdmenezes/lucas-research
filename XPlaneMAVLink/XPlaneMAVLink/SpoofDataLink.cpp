@@ -5,6 +5,7 @@ SpoofDataLink::SpoofDataLink(const char * input, int iSize, const char * output,
 	this->output = output;
 	this->iSize = iSize;
 	this->oSize = oSize;
+	sprintf(ident,"I: %d\nO: %d", input, output);
 }
 SpoofDataLink::SpoofDataLink(const char * buffer, int size) {
 	this->input = buffer;
