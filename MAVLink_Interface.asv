@@ -191,6 +191,10 @@ static void mdlInitializeSizes(SimStruct *S) {
                 ssSetOutputPortWidth(S, ii, 8); /* s1, s2, s3, s4, s5, s6, s7, s8 */
                 break;
             }
+            case MAVLINK_MSG_ID_SYS_STATUS: {
+                ssSetOutputPortWidth(S, ii, 7); /* mode, nav_mode, status, load, vbat, battery_remaining, packet_drop */
+                break;
+            }
             default:
                 ssSetOutputPortWidth(S, ii, 1);
                 break;
@@ -471,9 +475,11 @@ DWORD WINAPI mavThreadRead(LPVOID lpParam) {
     while (looping) {
         for (int i = 0; i<count; i++) {
             int t = mavlinkMap[i]->receiveMessage();
-            Sleep(100);
-            printf("%d\n", t);
-            if (t == -1) {
+            t = mavlinkMap[i]->receiveMessage();
+//            Sleep(100);
+            
+            if (t != -1) {
+                printf("%d\n", t);
   //              printf("%d\n",k++);
             }
         }
@@ -491,12 +497,7 @@ void mavlink_setup_streams(SimStruct* S) {
     int myIndex = *(uint8_T*) ssGetDWork(S,0);
 
     for (int_T index = 0; index < nOutputPorts; index++){
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 1, 1);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_POSITION, 3, 1);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA2, 10, 1);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 3, 1);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 3, 1);
+        printf("%d\n",mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1));
     }
 }
 
@@ -560,15 +561,15 @@ int_T mavlink_msg_decode(SimStruct* S) {
                 break;
             }
             case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: {
-                int ;
-                float ;
-                if(mavlinkMap[myIndex]->getRawGPS()) {
-                    ppPwork_data[index][0] = (real_T)fix;
-                    ppPwork_data[index][1] = (real_T)lat;
-                    ppPwork_data[index][2] = (real_T)lng;
-                    ppPwork_data[index][3] = (real_T)alt;
-                    ppPwork_data[index][4] = (real_T)eph;
-                    ppPwork_data[index][5] = (real_T)epv;
+                int32_t lat, lng, alt ;
+                int16_t vx, vy, vz;
+                if(mavlinkMap[myIndex]->getGlobalPositionInt(lat, lng, alt, vx, vy, vz)) {
+                    ppPwork_data[index][0] = (real_T)((long double)lat)/10000000.0;
+                    ppPwork_data[index][1] = (real_T)(lng/10000000.0);
+                    ppPwork_data[index][2] = (real_T)(alt/1000.0);
+                    ppPwork_data[index][3] = (real_T)(vx/100.0);
+                    ppPwork_data[index][4] = (real_T)(vy/100.0);
+                    ppPwork_data[index][5] = (real_T)(vz/100.0);
                 } else {
 //                    printMessage(S,"No GPS data available!");
                 }
@@ -608,6 +609,21 @@ int_T mavlink_msg_decode(SimStruct* S) {
                 }
                 break;
             }
+            case MAVLINK_MSG_ID_SYS_STATUS: {
+                uint8_t mode, nav_mode, status;
+                uint16_t load, vbat, battery_remaining, packet_drop;
+                if(mavlinkMap[myIndex]->getSystemStatus(mode, nav_mode, status, load, vbat, battery_remaining, packet_drop)) {
+                    ppPwork_data[index][0] = (real_T) mode;
+                    ppPwork_data[index][1] = (real_T) nav_mode;
+                    ppPwork_data[index][2] = (real_T) status;
+                    ppPwork_data[index][3] = (real_T) load;
+                    ppPwork_data[index][4] = (real_T) vbat;
+                    ppPwork_data[index][5] = (real_T) battery_remaining;
+                    ppPwork_data[index][6] = (real_T) packet_drop;
+                }
+            }
+            
+            
             default:
                 break;
         }

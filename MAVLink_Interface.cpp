@@ -9,10 +9,11 @@
 #include "simstruc.h"
 #include "include/mavlink_types.h"
 #include "include/common/common.h"
-#include "XPlaneMAVLink/XPlaneMAVLink/DataLink.h"
-#include "XPlaneMAVLink/XPlaneMAVLink/SerialDataLink.h"
-#include "XPlaneMAVLink/XPlaneMAVLink/TCPDataLink.h"
-#include "XPlaneMAVLink/XPlaneMAVLink/MAVLink.h"
+#include "APMMAVLink/DataLink/DataLink.h"
+#include "APMMAVLink/DataLink/SerialDataLink.h"
+#include "APMMAVLink/DataLink/XBeeAPIDataLink.h"
+#include "APMMAVLink/DataLink/TCPDataLink.h"
+#include "APMMAVLink/XPlaneMAVLink/MAVLink.h"
 
 
 #define COM_PORT_IDX 0
@@ -191,6 +192,10 @@ static void mdlInitializeSizes(SimStruct *S) {
                 ssSetOutputPortWidth(S, ii, 8); /* s1, s2, s3, s4, s5, s6, s7, s8 */
                 break;
             }
+            case MAVLINK_MSG_ID_SYS_STATUS: {
+                ssSetOutputPortWidth(S, ii, 7); /* mode, nav_mode, status, load, vbat, battery_remaining, packet_drop */
+                break;
+            }
             default:
                 ssSetOutputPortWidth(S, ii, 1);
                 break;
@@ -255,7 +260,8 @@ static void mdlStart(SimStruct *S) {
     int targetComp = (int)*(real_T*) mxGetData(TARGET_COM_ID(S));
     DataLink * startLink;
 	if (strcmp(strCOM,"") != 0) {
-        startLink = new SerialDataLink(strCOM, baud);
+//        startLink = new SerialDataLink(strCOM, baud);
+        startLink = new XBeeAPIDataLink(strCOM, baud,0x13A200,0x40771103);
     }
     if (strcmp(strIP,"") != 0) {
         startLink = new TCPDataLink(strIP, port, false);
@@ -357,7 +363,7 @@ static void mdlUpdate(SimStruct *S, int_T tid) {
     
     mavlink_msg_decode(S);
 //    mavlinkMap[myIndex]->receiveMessage();
-    
+
     for (int_T index = 0; index < nInputPorts; index++){             
         switch (*(ptrMsg_id_in+index)) {
             case MAVLINK_MSG_ID_SET_MODE: {
@@ -471,11 +477,11 @@ DWORD WINAPI mavThreadRead(LPVOID lpParam) {
     while (looping) {
         for (int i = 0; i<count; i++) {
             int t = mavlinkMap[i]->receiveMessage();
-            Sleep(100);
-      //      printf("%d\n", t);
-            if (t == -1) {
-  //              printf("%d\n",k++);
-            }
+      //      printf("%d\n",t);
+            t = mavlinkMap[i]->sendMessages();
+//            if (t != 0) {
+//                printf("%d\n",t);
+//            }
         }
     }
     return 0;
@@ -490,14 +496,26 @@ void mavlink_setup_streams(SimStruct* S) {
 
     int myIndex = *(uint8_T*) ssGetDWork(S,0);
 
-    for (int_T index = 0; index < nOutputPorts; index++){
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 1, 1);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_POSITION, 5, 1);
+  //  for (int_T index = 0; index < nOutputPorts; index++){
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 3, 1);
+        mavlinkMap[myIndex]->sendMessages();
+        Sleep(100);
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_POSITION, 3, 1);
+        mavlinkMap[myIndex]->sendMessages();
+        Sleep(100);
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1);
+        mavlinkMap[myIndex]->sendMessages();
+        Sleep(100);
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA2, 10, 1);
+        mavlinkMap[myIndex]->sendMessages();
+        Sleep(100);
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 3, 1);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 3, 1);
-    }
+        mavlinkMap[myIndex]->sendMessages();
+        Sleep(100);
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 3, 1);        
+        mavlinkMap[myIndex]->sendMessages();
+        Sleep(100);
+//    }
 }
 
 int_T mavlink_msg_decode(SimStruct* S) {   
@@ -608,6 +626,21 @@ int_T mavlink_msg_decode(SimStruct* S) {
                 }
                 break;
             }
+            case MAVLINK_MSG_ID_SYS_STATUS: {
+                uint8_t mode, nav_mode, status;
+                uint16_t load, vbat, battery_remaining, packet_drop;
+                if(mavlinkMap[myIndex]->getSystemStatus(mode, nav_mode, status, load, vbat, battery_remaining, packet_drop)) {
+                    ppPwork_data[index][0] = (real_T) mode;
+                    ppPwork_data[index][1] = (real_T) nav_mode;
+                    ppPwork_data[index][2] = (real_T) status;
+                    ppPwork_data[index][3] = (real_T) load;
+                    ppPwork_data[index][4] = (real_T) vbat;
+                    ppPwork_data[index][5] = (real_T) battery_remaining;
+                    ppPwork_data[index][6] = (real_T) packet_drop;
+                }
+            }
+            
+            
             default:
                 break;
         }

@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{3ef23f0e-570d-4e71-b8cf-e2545565c2a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\XPlane">
+      <UniqueIdentifier>{a7a87a9c-1205-47ff-9e53-8080f32c24cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\XPlane">
+      <UniqueIdentifier>{9fe4a8ab-0fd5-4359-a13b-399e395d7de1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XPlaneMAVLinkWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XPlaneMAVLink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataRef.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XPButton.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPCheckButton.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPObject.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPWindow.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPLabel.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="XPTextField.cpp">
+      <Filter>Source Files\XPlane</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\SDK\Libraries\Win\XPLM.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\..\SDK\Libraries\Win\XPWidgets.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DataRef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XPButton.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPObject.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPCheckButton.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPWindow.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPLabel.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="XPTextField.h">
+      <Filter>Header Files\XPlane</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
