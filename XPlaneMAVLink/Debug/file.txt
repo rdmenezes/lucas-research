@@ -1,5 +1,0 @@
-flag 1
-ip 0.1.0.0
-port 5671
-com COM1
-baud 115201
