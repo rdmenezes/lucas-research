@@ -30,11 +30,12 @@ public:
 	int getComponentID();
 	long getPhysicalAddressHigh();
 	long getPhysicalAddressLow();
+	bool isValidComponent();
 private:
 	
 	static bool loadDatabase(const char * filename = "components.txt");
 	static bool isComment(string line);
-	bool isValidComponent();
+	
 	
 	static char identifiers[MAXIMUM_COMPONENTS][256];
 	static int systemIDs[MAXIMUM_COMPONENTS];

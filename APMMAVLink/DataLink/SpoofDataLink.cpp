@@ -5,6 +5,7 @@ SpoofDataLink::SpoofDataLink(const char * input, int iSize, const char * output,
 	this->output = output;
 	this->iSize = iSize;
 	this->oSize = oSize;
+	this->connected = false;
 	sprintf(ident,"I: %d\nO: %d", input, output);
 }
 SpoofDataLink::SpoofDataLink(const char * buffer, int size) {
@@ -12,9 +13,11 @@ SpoofDataLink::SpoofDataLink(const char * buffer, int size) {
 	this->output = buffer;
 	this->iSize = size;
 	this->oSize = size;
+	this->connected = false;
 }
 
 bool SpoofDataLink::connect() {
+	connected = true;
 	return true;
 }
 bool SpoofDataLink::send(char * message, int bytes) {
@@ -28,5 +31,6 @@ int SpoofDataLink::receive(int bytes, char * message) {
 	return bytes;
 }
 bool SpoofDataLink::disconnect() {
+	connected = false;
 	return true;
 }

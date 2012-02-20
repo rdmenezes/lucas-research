@@ -7,6 +7,7 @@ SerialDataLink::SerialDataLink(const char * comPort, int baudRate) {
 	this->byteSize = 8;
 	this->stopBits = ONESTOPBIT;
 	this->parity = NOPARITY;
+	this->connected = false;
 	sprintf(ident,"%s", comPort);
 	sprintf(type,"Serial");
 }
@@ -53,6 +54,7 @@ bool SerialDataLink::connect() {
         fprintf(stderr,"Could not set timeouts in SerialDataLink\n");
 		return false;
     }
+	connected = true;
 	return true;
 }
 
@@ -77,7 +79,16 @@ int SerialDataLink::receive(int bytes, char * message) {
 }
 
 bool SerialDataLink::disconnect() {
-	return CloseHandle(hSerial);
+	if (CloseHandle(hSerial)) {
+		connected = false;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void SerialDataLink::setNumberOfStopBits(int stopBits) {
+	this->stopBits = stopBits;
 }
 
 DWORD SerialDataLink::checkBaudRate(int baudRate) {

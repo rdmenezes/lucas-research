@@ -3,6 +3,7 @@
 /* Constructors */
 XBeeAPIDataLink::XBeeAPIDataLink(const char * comPort, int baudRate, unsigned long upper, unsigned long lower) :
 SerialDataLink(comPort,baudRate) {
+	SerialDataLink::setNumberOfStopBits(TWOSTOPBITS);
 	this->addressUpper = upper;
 	this->addressLower = lower;
 	this->shortAddress = 0xFFFE;
@@ -11,6 +12,7 @@ SerialDataLink(comPort,baudRate) {
 
 XBeeAPIDataLink::XBeeAPIDataLink(SerialDataLink &dl, unsigned long upper, unsigned long lower) :
 SerialDataLink(dl) {
+	SerialDataLink::setNumberOfStopBits(TWOSTOPBITS);
 	this->addressUpper = upper;
 	this->addressLower = lower;
 	this->shortAddress = 0xFFFE;
@@ -92,7 +94,13 @@ int XBeeAPIDataLink::receive(int bytes, char * message) {
 
 	//call the overridden function
 	int l = SerialDataLink::receive(XBEE_API_PACKET_LENGTH, (char*)(packet));
-	
+
+//	printf("%d\n", l);
+//	for (int i = 0; i<l; i++) {
+///		printf("0x%X ", packet[i]);
+//	}	
+//	printf("\n");
+
 	//if the packet isn't big enough to make sense of (can't read its length)
 	//or doesn't start with the right character, exit immediately
 	if (l <= 3 || packet[0] != 0x7E) {return 0;}
@@ -103,11 +111,24 @@ int XBeeAPIDataLink::receive(int bytes, char * message) {
 	//how long is the packet?
 	int currentLength = l;
 
+//	printf ("%d \n", packetLength);
+
+	int counter = 0;
 	//while the packet is too small, make it bigger
 	while (currentLength < packetLength) {
 		l = SerialDataLink::receive(XBEE_API_PACKET_LENGTH-currentLength, (char*)(packet+currentLength));
+		if (l == 0) {
+			counter++;
+			if (counter > 10) { return 0;}
+		}
 		currentLength += l;
+		//printf("%d\n", l);
+//		for (int i = 0; i<currentLength; i++) {
+//			printf("0x%X ", packet[i]);
+//		}	
+//		printf("\n");
 	}
+//	printf("------------------------------------\n");
 	//(if we overread, the data gets discarded)
 	//TODO: buffer this data
 

@@ -25,7 +25,7 @@
 
 //send/receive buffer size
 #define MAVLINK_BUFFER_SIZE 1024
-#define SEND_RATE 100
+#define SEND_RATE 20
 
 //timeouts
 #define MAVLINK_ATTITUDE_TIMEOUT 1000

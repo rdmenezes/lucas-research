@@ -6,6 +6,7 @@
 UDPDataLink::UDPDataLink(const char * address, int port) {
 	this->address = address;
 	this->port = port;
+	this->connected = false;
 	timeout = 1000;
 	sprintf(ident,"%s:%d", address, port);
 	sprintf(type,"UDP");
@@ -22,12 +23,18 @@ UDPDataLink::~UDPDataLink() {
  *	Returns true if sockt created successfully, false otherwise
  */
 bool UDPDataLink::connect() {
-	return	startWindowsSockets() &&					//start winsock
+	if (startWindowsSockets() &&					//start winsock
 			setupLocalInterface(port) &&				//set up local interface
 			setupDestinationAddress(address, port) &&	//set up desination address
 			createSocket() &&							//create socket
 			setReuseAddress(true) &&					//enable address reuse
-			bindSocket();								//bind socket
+			bindSocket()) {								//bind socket
+		connected = true;
+		return true;
+	} else {
+		connected = false;
+		return false;
+	}
 }
 
 /* Send function
@@ -104,6 +111,7 @@ bool UDPDataLink::disconnect() {
 #elif __linux__
 	close(udpSocket);
 #endif
+	connected = false;
 	return true;
 }
 

@@ -20,6 +20,7 @@ public:
 	int receive(int bytes, char * message);
 	bool disconnect();
 	void setByteSize(int bits);
+	void setNumberOfStopBits(int stopBits);
 private:
 	DWORD checkBaudRate(int baudRate);
 	const char * comPort;

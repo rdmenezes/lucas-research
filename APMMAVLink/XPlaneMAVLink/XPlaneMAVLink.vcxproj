@@ -94,6 +94,16 @@
     <ClInclude Include="XPTextField.h" />
     <ClInclude Include="XPWindow.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DataLink\DataLink.vcxproj">
+      <Project>{7538ffd4-313a-4d45-8053-a072198b4462}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -13,7 +13,8 @@
 #include "APMMAVLink/DataLink/SerialDataLink.h"
 #include "APMMAVLink/DataLink/XBeeAPIDataLink.h"
 #include "APMMAVLink/DataLink/TCPDataLink.h"
-#include "APMMAVLink/XPlaneMAVLink/MAVLink.h"
+#include "APMMAVLink/DataLink/MAVLink.h"
+#include "APMMAVLink/DataLink/MAVLinkComponent.h"
 
 
 #define COM_PORT_IDX 0
@@ -33,21 +34,18 @@
 
 #define MY_COM_ID_IDX  5
 #define MY_COM_ID(S) ssGetSFcnParam(S,MY_COM_ID_IDX)
+        
+#define TARGET_COM_IDX  6
+#define TARGET_COM(S) ssGetSFcnParam(S,TARGET_COM_IDX)
 
-#define TARGET_SYS_ID_IDX  6
-#define TARGET_SYS_ID(S) ssGetSFcnParam(S,TARGET_SYS_ID_IDX)
-
-#define TARGET_COM_ID_IDX  7
-#define TARGET_COM_ID(S) ssGetSFcnParam(S,TARGET_COM_ID_IDX)
-
-#define MSG_IN_IDX  8
+#define MSG_IN_IDX  7
 #define MSG_IN(S) ssGetSFcnParam(S,MSG_IN_IDX)
 
-#define MSG_OUT_IDX  9
+#define MSG_OUT_IDX  8
 #define MSG_OUT(S) ssGetSFcnParam(S,MSG_OUT_IDX)
 
 
-#define NPARAMS   10
+#define NPARAMS   9
 
 
 #if !defined(MATLAB_MEX_FILE)
@@ -61,14 +59,19 @@ std::map<int, MAVLink*> mavlinkMap;
 HANDLE hThreadRead;
 
 bool looping = true;
+bool finishedLooping = false;
 int_T mavlink_msg_decode(SimStruct* S);
 
 DWORD WINAPI mavThreadRead(LPVOID lpParam);
 void mavlink_setup_streams(SimStruct* S);
 
-void printMessage(SimStruct *S,const char * msg) {
+void printMessage(SimStruct *S,static const char * msg) {
     int index = *(int*)ssGetDWork(S,0);
     printf("MAVLink_Interface #%d: %s\n", index, msg);
+}
+void printError(SimStruct *S,static const char * msg) {
+    printMessage(S, msg);
+    ssSetErrorStatus(S, msg);
 }
 
 #undef MDL_CHECK_PARAMETERS 
@@ -98,8 +101,7 @@ static void mdlInitializeSizes(SimStruct *S) {
     ssSetSFcnParamTunable(S,IP_PORT_IDX,false);
     ssSetSFcnParamTunable(S,MY_SYS_ID_IDX,false);
     ssSetSFcnParamTunable(S,MY_COM_ID_IDX,false);
-    ssSetSFcnParamTunable(S,TARGET_SYS_ID_IDX,false);
-    ssSetSFcnParamTunable(S,TARGET_COM_ID_IDX,false);
+    ssSetSFcnParamTunable(S,TARGET_COM_IDX,false);
     ssSetSFcnParamTunable(S,MSG_IN_IDX,false);
     ssSetSFcnParamTunable(S,MSG_OUT_IDX,false);
     
@@ -184,6 +186,10 @@ static void mdlInitializeSizes(SimStruct *S) {
                 ssSetOutputPortWidth(S, ii, 6); /*  lat, lon, alt, vx, vy, vz */
                 break;
             }
+            case MAVLINK_MSG_ID_GPS_RAW: {
+                ssSetOutputPortWidth(S, ii, 3); /*  lat, lon, alt */
+                break;
+            }
             case MAVLINK_MSG_ID_RC_CHANNELS_SCALED:{
                 ssSetOutputPortWidth(S, ii, 9); /* s1, s2, s3, s4, s5, s6, s7, s8, rssi */
                 break;
@@ -256,58 +262,129 @@ static void mdlStart(SimStruct *S) {
     int port = (int)*(real_T*) mxGetData(IP_PORT(S));
     int mySys = (int)*(real_T*) mxGetData(MY_SYS_ID(S));
     int myComp = (int)*(real_T*) mxGetData(MY_COM_ID(S));
-    int targetSys = (int)*(real_T*) mxGetData(TARGET_SYS_ID(S));
-    int targetComp = (int)*(real_T*) mxGetData(TARGET_COM_ID(S));
-    DataLink * startLink;
-	if (strcmp(strCOM,"") != 0) {
-//        startLink = new SerialDataLink(strCOM, baud);
-        startLink = new XBeeAPIDataLink(strCOM, baud,0x13A200,0x40771103);
+    char_T strComp[256];
+    mxGetString(TARGET_COM(S),strComp,sizeof(strComp));
+    
+    /* Begin setting up the datalink object */
+    DataLink * startLink = NULL;
+    
+    /* Use component database (components.txt) to associate addresses
+     *  with system/component IDs */
+    MAVLinkComponent *myComponent = new MAVLinkComponent(strComp);
+    
+    bool isSerial = false;
+    
+    /* If the component was found, try to make a datalink object */
+    if (myComponent->isValidComponent()) {
+        /* are we a serial port? */
+        if (strcmp(strCOM,"") != 0) {
+            /* Make a serial data object */
+            startLink = new SerialDataLink(strCOM, baud);
+            ((SerialDataLink*)startLink)->setNumberOfStopBits(ONESTOPBIT);
+            
+            /* If we're an API connection, overright the link object */
+             if (myComponent->getPhysicalAddressHigh() != 0 && myComponent->getPhysicalAddressLow() != 0) {
+                startLink = new XBeeAPIDataLink(*(SerialDataLink*)startLink,myComponent->getPhysicalAddressHigh(),myComponent->getPhysicalAddressLow());
+                ((SerialDataLink*)startLink)->setNumberOfStopBits(ONESTOPBIT);
+             }
+            isSerial = true;
+        }
+        
+        /* are we a network port? */
+        if (strcmp(strIP,"") != 0) {
+            startLink = new TCPDataLink(strIP, port, false);
+            isSerial = false;
+        }
     }
-    if (strcmp(strIP,"") != 0) {
-        startLink = new TCPDataLink(strIP, port, false);
-    }
+    
+    /* If we didn't create anything, quit out */
     if (startLink == NULL) {
-        sprintf(msg,"No valid connections specified");
-        printMessage(S,msg);
+        sprintf(msg,"No valid connections specified for '%s'", strComp);
+        printError(S,msg);
+        return;
     }
+    
+    /* Assuming alls gone well, create a MAVLink object */
     MAVLink * startMAV;
+    
+    /* Keep track of whether we're an API or not */
+    bool zigbeeAPI = false;
+    
+    /* loop over all current datalinks to see if we need to re-use any
+     *  Reuse checks if identifiers already exist (i.e. COM5) and if so
+     *  associates this instances MAVLink object with that instead of creating
+     *  a new one */
     for (int i = 0; i<linkMap.size(); i++) {
+        /* compare identifiers */
         if (strcmp(linkMap[i]->getIdentifier(), startLink->getIdentifier()) == 0) {
+            /* give the user some info */
             sprintf(msg,"%s already in open, reusing...", startLink->getIdentifier());
             printMessage(S,msg);
-            startMAV = new MAVLink(mySys,myComp,linkMap[i]);
-            delete startLink;
-            startLink = NULL;
+            
+            /* are we an API object */
+            if ((myComponent->getPhysicalAddressHigh() == 0 && myComponent->getPhysicalAddressLow() == 0) || !isSerial) {
+                /* if not, make an object around previous identifier */
+                startMAV = new MAVLink(mySys,myComp,linkMap[i]);
+                
+                /* remove our link as we don't need it anymore */
+                delete startLink;
+                startLink = NULL;
+            } else {
+                /* if we're API, overwrite our link with a new one
+                 *  this will use the same serial link but have a different
+                 *  address */
+                zigbeeAPI = true;
+                delete startLink;
+                startLink = new XBeeAPIDataLink(*(SerialDataLink*)linkMap[i],myComponent->getPhysicalAddressHigh(),myComponent->getPhysicalAddressLow());
+                ((SerialDataLink*)startLink)->setNumberOfStopBits(ONESTOPBIT);
+            }
         }
     }
+    
+    /* assuming we're not reusing, add our link to the map and create
+     *  a MAVLink object */
     if (startLink != NULL) {
         linkMap[linkMap.size()] = startLink;
-        if((linkMap[linkMap.size()-1])->connect()) {
-            sprintf(msg,"Connected to %s",(linkMap[linkMap.size()-1])->getIdentifier());
-            printMessage(S,msg);
-        } else {
-            sprintf(msg,"Failed to connect to %s",(linkMap[linkMap.size()-1])->getIdentifier());
-            printMessage(S,msg);
+        
+        /* if we're in API (and reusing), dont try connecting again */
+        if (!zigbeeAPI) {
+            if((linkMap[linkMap.size()-1])->connect()) {
+                sprintf(msg,"Connected to %s",(linkMap[linkMap.size()-1])->getIdentifier());
+                printMessage(S,msg);
+            } else {
+                sprintf(msg,"Failed to connect to %s",(linkMap[linkMap.size()-1])->getIdentifier());
+                printError(S,msg);
+                return;
+            }
         }
+        
+        /* create a new MAVLink object */
         startMAV = new MAVLink(mySys,myComp,linkMap[linkMap.size()-1]);
     }
+    
+    /* check for duplicate components and caution the user (we're not sure how
+     *  this will behave! */
     for (int i = 0; i<index; i++) {
-        if (mavlinkMap[i]->getTargetSystem() == targetSys && mavlinkMap[i]->getTargetComponent() == targetComp) {
-            sprintf(msg,"Component %d:%d already exists in #%d (bad things may happen!)",targetSys, targetComp, i);
+        if (mavlinkMap[i]->getTargetSystem() == myComponent->getSystemID()
+                && mavlinkMap[i]->getTargetComponent() == myComponent->getComponentID()) {
+            sprintf(msg,"Component %d:%d already exists in #%d (bad things may happen!)",myComponent->getSystemID(),  myComponent->getComponentID(), i);
             printMessage(S,msg);
         }
     }
     
-    startMAV->setTargetComponent(targetSys,targetComp);
-    
+    /* set our target system and save the MAVLink object */
+    startMAV->setTargetComponent(myComponent->getSystemID(), myComponent->getComponentID());
     mavlinkMap[index] = startMAV;
 
+    /* set up our streams (to default APM ground station values)*/
     mavlink_setup_streams(S);
     
+    /* let thread loop execute indefinately (until terminate is called) */
     looping = true;
     
+    /* create our MAVLink thread */
     hThreadRead = CreateThread( NULL, 0, 
-       mavThreadRead, S, 0, NULL);
+       mavThreadRead, S, THREAD_TERMINATE, NULL);
 }
 #endif /*  MDL_START */
 
@@ -458,14 +535,24 @@ static void mdlUpdate(SimStruct *S, int_T tid) {
     }
 }
 #endif /* MDL_UPDATE */
-
 static void mdlTerminate(SimStruct *S) {
     
     looping = false;
-    CloseHandle(hThreadRead);
-    int myIndex = *(uint8_T*) ssGetDWork(S,0);
+    int i = 0;
+    if (TerminateThread(hThreadRead, -1) == 0 ) {
+        static char msg[256];
+        sprintf(msg, "Could not stop thread (Error %d)",GetLastError());
+        printMessage(S,msg);
+    }
+//    CloseHandle(hThreadRead);
+//    int myIndex = *(uint8_T*) ssGetDWork(S,0);
     for (int i = 0; i<linkMap.size(); i++) {
-        linkMap[i]->disconnect();
+        if (linkMap[i]->isConnected() && linkMap[i]->disconnect()) {
+            static char msg[256];
+            sprintf(msg, "%s closed",linkMap[i]->getIdentifier());
+            printMessage(S,msg);
+        }
+        delete linkMap[i];
     }
     count = 0;
     mavlinkMap.clear();
@@ -477,11 +564,8 @@ DWORD WINAPI mavThreadRead(LPVOID lpParam) {
     while (looping) {
         for (int i = 0; i<count; i++) {
             int t = mavlinkMap[i]->receiveMessage();
-      //      printf("%d\n",t);
             t = mavlinkMap[i]->sendMessages();
-//            if (t != 0) {
-//                printf("%d\n",t);
-//            }
+            Sleep(1);
         }
     }
     return 0;
@@ -496,23 +580,27 @@ void mavlink_setup_streams(SimStruct* S) {
 
     int myIndex = *(uint8_T*) ssGetDWork(S,0);
 
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_ALL, 0, 0);
+        mavlinkMap[myIndex]->sendMessages();
+        Sleep(100);
+    
   //  for (int_T index = 0; index < nOutputPorts; index++){
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 3, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_POSITION, 3, 1);
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_POSITION, 10, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1);
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 0, 0);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA2, 10, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 3, 1);
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 0, 0);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 3, 1);        
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 0, 0);        
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
 //    }
@@ -589,6 +677,16 @@ int_T mavlink_msg_decode(SimStruct* S) {
                     ppPwork_data[index][5] = (real_T)(vz/100.0);
                 } else {
 //                    printMessage(S,"No GPS data available!");
+                }
+                break;
+            }
+            case MAVLINK_MSG_ID_GPS_RAW: {
+                int fix;
+                float lat, lng, alt, eph, epv, v, crs;
+                if(mavlinkMap[myIndex]->getRawGPS(fix,lat, lng, alt, eph, epv, v, crs)) {
+                    ppPwork_data[index][0] = (real_T)(lat);
+                    ppPwork_data[index][1] = (real_T)(lng);
+                    ppPwork_data[index][2] = (real_T)(alt);
                 }
                 break;
             }

@@ -295,6 +295,7 @@ void MyDrawWindowCallback(XPLMWindowID inWindowID, void *inRefcon) {
  *	If we have a connection, send the attitude and get the control signal
  *	Returns -1.0 to tell XPlane we want to be called on the next loop iteration
  */
+int i = 0;
 float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void * inRefcon) {
 	int16_t s1,s2,s3,s4,s5,s6,s7,s8;
 	uint8_t rssi;
@@ -305,7 +306,7 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	sprintf(heading, "Hdg: %03.0f Trk: %03.0f", psi.getFloat()*180/PI, track.getFloat());
 	sprintf(attitude, "phi: %-5.2f theta: %-5.2f psi %-5.2f",phi.getFloat(), theta.getFloat(), psi.getFloat());
 	sprintf(attitudeRates, "P: %-5.2f Q: %-5.2f R: %-5.2f",P.getFloat(), Q.getFloat(), R.getFloat());
-	
+
 	//Is anythign connected? If so, give it control
 	externalControl(connected);
 
@@ -334,6 +335,8 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	throttle.setFloat(0,s3);
 	rudder.setFloat(s4);
 
+	myMAV->sendMessages();
+	
 	//Call us on the next loop please...
 	return -1.0;
 }

@@ -6,6 +6,7 @@ FileDataLink::FileDataLink(FILE * outputStream, FILE * inputStream) {
 	this->inputStream = inputStream;
 	this->hexIn = false;
 	this->hexOut = false;
+	this->connected = false;
 	outputFile = NULL;
 	inputFile = NULL;
 	sprintf(ident,"I: %s\nO: %s", inputStream, outputStream);
@@ -19,6 +20,7 @@ FileDataLink::FileDataLink(const char * outputFile, const char * inputFile, bool
 	this->append = append;
 	this->hexIn = false;
 	this->hexOut = false;
+	this->connected = false;
 	sprintf(ident,"I: %s\nO: %s", inputStream, outputStream);
 	sprintf(type,"File");
 }
@@ -29,7 +31,12 @@ FileDataLink::FileDataLink(const char * outputFile, const char * inputFile, bool
  */
 bool FileDataLink::connect() {
 	if (outputFile != NULL && inputFile != NULL) {
-		return openOutputStream() || openInputStream();
+		if (openOutputStream() || openInputStream()) {
+			connected = true;
+			return true;
+		}
+		connected = false;
+		return false;
 	}
 	return true;
 }
@@ -74,7 +81,11 @@ int FileDataLink::receive(int bytes, char * message) {
  */ 
 bool FileDataLink::disconnect() {
 	if (outputFile != NULL && inputFile != NULL) {
-		return closeOutputStream() || closeInputStream();
+		if (closeOutputStream() || closeInputStream()) {
+			connected = false;
+			return true;
+		}
+		return false;
 	}
 	return true;
 }

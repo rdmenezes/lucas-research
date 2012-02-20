@@ -22,12 +22,18 @@ TCPDataLink::~TCPDataLink() {
  *	Returns true if sockt created successfully, false otherwise
  */
 bool TCPDataLink::connect() {
-	return startWindowsSockets() &&
+	if (startWindowsSockets() &&
 			setupLocalInterface(port) &&
 			setupDestinationAddress(address, port) &&
 			createSocket() &&
 			setReuseAddress(true) &&
-			connectAsClient();
+			connectAsClient()) {
+		connected = true;
+		return true;
+	} else {
+		connected = false;
+		return false;
+	}
 	
 }
 
@@ -45,6 +51,7 @@ bool TCPDataLink::disconnect() {
 #elif __linux__
 	close(tcpSocket);
 #endif
+	connected = false;
 	return true;
 }
 

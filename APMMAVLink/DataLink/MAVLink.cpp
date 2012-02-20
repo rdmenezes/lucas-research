@@ -64,12 +64,11 @@ int MAVLink::receiveMessage() {
 	mavlink_message_t msg;
 	mavlink_status_t status;
 	uint8_t buffer[MAVLINK_BUFFER_SIZE];
-	memcpy(buffer,overBuffer,overflow);
 	if (link == NULL) { return -1; }
-	int msg_len = link->receive(MAVLINK_BUFFER_SIZE,(char*)(buffer+overflow));
+	int msg_len = link->receive(MAVLINK_BUFFER_SIZE,(char*)(buffer));
 	int j = 0;
 	int k = 0;
-	for (int i=0; i<(msg_len+overflow); i++) {
+	for (int i=0; i<(msg_len); i++) {
 		if (mavlink_parse_char(0,buffer[i],&msg,&status)) {
 			addMessage(msg);
 			memset(&msg,'\0',sizeof(mavlink_message_t));
@@ -78,13 +77,6 @@ int MAVLink::receiveMessage() {
 			k = i;
 		}
 	}
-/*	if (k<msg_len) {
-		memset(overBuffer,'\0',MAVLINK_BUFFER_SIZE);
-		memcpy(overBuffer,buffer+k+1,msg_len-k-1);
-		overflow = msg_len-k-1;
-	} else {*/
-		overflow = 0;
-	//}
 	return j;
 }
 
@@ -118,10 +110,14 @@ void MAVLink::addMessage(mavlink_message_t &msg) {
  */
 bool MAVLink::sendMessage(mavlink_message_t &msg) {
     MAVLinkMessage mm;
-    mm.msg = msg;
-    mm.timeReceived = getTime_ms();
 	char key[16];
     sprintf(key,"%d:%d %d", targetSystemId, targetComponentId, msg.msgid);
+	mm.msg = msg;
+	if (MessageMapOut.find(key) != MessageMapOut.end()) {
+		mm.timeReceived = MessageMapOut[key].timeReceived;
+	} else {
+		mm.timeReceived = getTime_ms();
+	}
     MessageMapOut[key] = mm;
     return true;//sendMessages();
 }

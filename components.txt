@@ -1,0 +1,27 @@
+#	This file contains the master list of all MAVLink Components
+#	Each line defines a new component (blank lines and lines
+#	beginning with # are ignored).
+#
+#	The lines are tab delimited and format is:
+#	componentIdentifier	systemId componentId physicalAddress
+#
+#	The component identifier can be any unique string without
+#	spaces, however the following convention is advised
+#
+#	/vehicle_type/uniqueID/componentName
+#			(e.g. /aircraft/LU-WOTA/APM)
+#
+#	The system and component IDs correspond to the MAVLink IDs
+#
+#	The physical address corresponds to the 64-bit address of 
+#	the XBee module to which the component is connected in hex
+#	(without leading 0x and capitalised letters) using the
+#	format
+#
+#	highAddr-lowAddr		(e.g. 13A200-40071103)
+#
+#	If a component does not use the XBee ZNet (and thus does not
+#	require an address), use 0-0
+
+/aircraft/LU-WOTA/APM	1	1	13A200-40771103
+/aircraft/LU-WOTB/APM	2	1	13A200-407710D9

@@ -1,7 +1,7 @@
-﻿Build started 06/02/2012 18:00:57.
+﻿Build started 20/02/2012 12:12:50.
      1>Project "C:\Users\Owen\Documents\lucas-research\APMMAVLink\XPlaneMAVLink\XPlaneMAVLink.vcxproj" on node 3 (build target(s)).
      1>InitializeBuildStatus:
-         Touching "Debug\XPlaneMAVLink.unsuccessfulbuild".
+         Creating "Debug\XPlaneMAVLink.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
          All outputs are up-to-date.
        Link:
@@ -18,30 +18,17 @@
          Debug\XPWindow.obj
          ..\..\SDK\Libraries\Win\XPLM.lib
          ..\..\SDK\Libraries\Win\XPWidgets.lib
+         "C:\Users\Owen\Documents\lucas-research\APMMAVLink\Debug\DataLink.lib"
+         LINK : C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl not found or not built by the last incremental link; performing full link
             Creating library C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.lib and object C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.exp
-     1>XPlaneMAVLink.obj : error LNK2001: unresolved external symbol "public: virtual bool __thiscall TCPDataLink::connect(void)" (?connect@TCPDataLink@@UAE_NXZ)
-     1>XPlaneMAVLink.obj : error LNK2001: unresolved external symbol "public: virtual bool __thiscall TCPDataLink::send(char *,int)" (?send@TCPDataLink@@UAE_NPADH@Z)
-     1>XPlaneMAVLink.obj : error LNK2001: unresolved external symbol "public: virtual int __thiscall TCPDataLink::receive(int,char *)" (?receive@TCPDataLink@@UAEHHPAD@Z)
-     1>XPlaneMAVLink.obj : error LNK2001: unresolved external symbol "public: virtual bool __thiscall TCPDataLink::disconnect(void)" (?disconnect@TCPDataLink@@UAE_NXZ)
-     1>XPlaneMAVLink.obj : error LNK2001: unresolved external symbol "public: virtual bool __thiscall SerialDataLink::connect(void)" (?connect@SerialDataLink@@UAE_NXZ)
-     1>XPlaneMAVLink.obj : error LNK2001: unresolved external symbol "public: virtual bool __thiscall SerialDataLink::send(char *,int)" (?send@SerialDataLink@@UAE_NPADH@Z)
-     1>XPlaneMAVLink.obj : error LNK2001: unresolved external symbol "public: virtual int __thiscall SerialDataLink::receive(int,char *)" (?receive@SerialDataLink@@UAEHHPAD@Z)
-     1>XPlaneMAVLink.obj : error LNK2001: unresolved external symbol "public: virtual bool __thiscall SerialDataLink::disconnect(void)" (?disconnect@SerialDataLink@@UAE_NXZ)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: bool __thiscall MAVLink::sendRequestStream(unsigned char,unsigned short,unsigned char)" (?sendRequestStream@MAVLink@@QAE_NEGE@Z) referenced in function "void __cdecl requestHILStreams(void)" (?requestHILStreams@@YAXXZ)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: int __thiscall MAVLink::getTargetSystem(void)" (?getTargetSystem@MAVLink@@QAEHXZ) referenced in function "int __cdecl connectCallback(class SettingsWindow *)" (?connectCallback@@YAHPAVSettingsWindow@@@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: int __thiscall MAVLink::getTargetComponent(void)" (?getTargetComponent@MAVLink@@QAEHXZ) referenced in function "int __cdecl connectCallback(class SettingsWindow *)" (?connectCallback@@YAHPAVSettingsWindow@@@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: bool __thiscall MAVLink::getIDFromHeartbeat(void)" (?getIDFromHeartbeat@MAVLink@@QAE_NXZ) referenced in function "int __cdecl connectCallback(class SettingsWindow *)" (?connectCallback@@YAHPAVSettingsWindow@@@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: __thiscall MAVLink::MAVLink(unsigned char,unsigned char,class DataLink *)" (??0MAVLink@@QAE@EEPAVDataLink@@@Z) referenced in function "int __cdecl connectCallback(class SettingsWindow *)" (?connectCallback@@YAHPAVSettingsWindow@@@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: __thiscall SerialDataLink::SerialDataLink(char const *,int)" (??0SerialDataLink@@QAE@PBDH@Z) referenced in function "int __cdecl connectCallback(class SettingsWindow *)" (?connectCallback@@YAHPAVSettingsWindow@@@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: __thiscall TCPDataLink::TCPDataLink(char const *,int,bool)" (??0TCPDataLink@@QAE@PBDH_N@Z) referenced in function "int __cdecl connectCallback(class SettingsWindow *)" (?connectCallback@@YAHPAVSettingsWindow@@@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: bool __thiscall MAVLink::getScaledServos(short &,short &,short &,short &,short &,short &,short &,short &,unsigned char &)" (?getScaledServos@MAVLink@@QAE_NAAF0000000AAE@Z) referenced in function "float __cdecl MyFlightloopCallback(float,float,int,void *)" (?MyFlightloopCallback@@YAMMMHPAX@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: bool __thiscall MAVLink::sendVFRHUD(float,float,short,unsigned short,float,float)" (?sendVFRHUD@MAVLink@@QAE_NMMFGMM@Z) referenced in function "float __cdecl MyFlightloopCallback(float,float,int,void *)" (?MyFlightloopCallback@@YAMMMHPAX@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: bool __thiscall MAVLink::sendRawGPS(int,float,float,float,float,float,float,float)" (?sendRawGPS@MAVLink@@QAE_NHMMMMMMM@Z) referenced in function "float __cdecl MyFlightloopCallback(float,float,int,void *)" (?MyFlightloopCallback@@YAMMMHPAX@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: bool __thiscall MAVLink::sendAttitude(float,float,float,float,float,float)" (?sendAttitude@MAVLink@@QAE_NMMMMMM@Z) referenced in function "float __cdecl MyFlightloopCallback(float,float,int,void *)" (?MyFlightloopCallback@@YAMMMHPAX@Z)
-     1>XPlaneMAVLink.obj : error LNK2019: unresolved external symbol "public: int __thiscall MAVLink::receiveMessage(void)" (?receiveMessage@MAVLink@@QAEHXZ) referenced in function "float __cdecl MyFlightloopCallback(float,float,int,void *)" (?MyFlightloopCallback@@YAMMMHPAX@Z)
-     1>C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl : fatal error LNK1120: 20 unresolved externals
-     1>Done Building Project "C:\Users\Owen\Documents\lucas-research\APMMAVLink\XPlaneMAVLink\XPlaneMAVLink.vcxproj" (build target(s)) -- FAILED.
+         XPlaneMAVLink.vcxproj -> C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl;#2" /manifest Debug\XPlaneMAVLink.xpl.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\XPlaneMAVLink.unsuccessfulbuild".
+         Touching "Debug\XPlaneMAVLink.lastbuildstate".
+     1>Done Building Project "C:\Users\Owen\Documents\lucas-research\APMMAVLink\XPlaneMAVLink\XPlaneMAVLink.vcxproj" (build target(s)).
 
-Build FAILED.
+Build succeeded.
 
-Time Elapsed 00:00:00.16
+Time Elapsed 00:00:01.29
