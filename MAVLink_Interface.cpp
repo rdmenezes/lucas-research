@@ -382,6 +382,7 @@ static void mdlStart(SimStruct *S) {
 
     /* set up our streams (to default APM ground station values)*/
     mavlink_setup_streams(S);
+    Sleep(100);
     
     /* let thread loop execute indefinately (until terminate is called) */
     looping = true;
@@ -555,6 +556,12 @@ static void mdlTerminate(SimStruct *S) {
     CloseHandle(hThreadRead);
     hThreadRead = NULL;
 //    int myIndex = *(uint8_T*) ssGetDWork(S,0);
+    for (int i = 0; i<mavlinkMap.size(); i++) {
+        delete mavlinkMap[i];
+        mavlinkMap[i] = NULL;
+    }
+    
+    
     for (int i = 0; i<linkMap.size(); i++) {
         if (linkMap[i]->isConnected() && linkMap[i]->disconnect()) {
             static char msg[256];
@@ -562,6 +569,7 @@ static void mdlTerminate(SimStruct *S) {
             printMessage(S,msg);
         }
         delete linkMap[i];
+        linkMap[i] = NULL;
     }
     count = 0;
     mavlinkMap.clear();
@@ -570,11 +578,13 @@ static void mdlTerminate(SimStruct *S) {
 
 int k = 0;
 DWORD WINAPI mavThreadRead(LPVOID lpParam) {
+    Sleep(100);
     while (looping) {
         for (int i = 0; i<mavlinkMap.size(); i++) {
             int t = mavlinkMap[i]->receiveMessage();
             Sleep(1);
-            t = mavlinkMap[i]->sendMessages();            
+            t = mavlinkMap[i]->sendMessages();
+            Sleep(1);
         }
     }
     return 0;
@@ -600,7 +610,7 @@ void mavlink_setup_streams(SimStruct* S) {
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_POSITION, 10, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 0, 0);
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA2, 10, 1);
