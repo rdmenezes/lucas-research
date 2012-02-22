@@ -56,7 +56,7 @@
 int count = 0;
 std::map<int, DataLink*> linkMap;
 std::map<int, MAVLink*> mavlinkMap;
-HANDLE hThreadRead;
+HANDLE hThreadRead = NULL;
 
 bool looping = true;
 bool finishedLooping = false;
@@ -295,6 +295,10 @@ static void mdlStart(SimStruct *S) {
             startLink = new TCPDataLink(strIP, port, false);
             isSerial = false;
         }
+    } else {
+        sprintf(msg,"No valid component specified for '%s'", strComp);
+        printError(S,msg);
+        return;
     }
     
     /* If we didn't create anything, quit out */
@@ -383,8 +387,12 @@ static void mdlStart(SimStruct *S) {
     looping = true;
     
     /* create our MAVLink thread */
-    hThreadRead = CreateThread( NULL, 0, 
-       mavThreadRead, S, THREAD_TERMINATE, NULL);
+    if (hThreadRead == NULL) {
+        sprintf(msg,"Creating MAVLink Thread");
+            printMessage(S,msg);
+        hThreadRead = CreateThread( NULL, 0, 
+           mavThreadRead, S, THREAD_TERMINATE, NULL);
+    }
 }
 #endif /*  MDL_START */
 
@@ -544,7 +552,8 @@ static void mdlTerminate(SimStruct *S) {
         sprintf(msg, "Could not stop thread (Error %d)",GetLastError());
         printMessage(S,msg);
     }
-//    CloseHandle(hThreadRead);
+    CloseHandle(hThreadRead);
+    hThreadRead = NULL;
 //    int myIndex = *(uint8_T*) ssGetDWork(S,0);
     for (int i = 0; i<linkMap.size(); i++) {
         if (linkMap[i]->isConnected() && linkMap[i]->disconnect()) {
@@ -562,10 +571,13 @@ static void mdlTerminate(SimStruct *S) {
 int k = 0;
 DWORD WINAPI mavThreadRead(LPVOID lpParam) {
     while (looping) {
-        for (int i = 0; i<count; i++) {
+        for (int i = 0; i<mavlinkMap.size(); i++) {
             int t = mavlinkMap[i]->receiveMessage();
-            t = mavlinkMap[i]->sendMessages();
+            printf("%d", t);
             Sleep(1);
+            t = mavlinkMap[i]->sendMessages();
+            printf("\t%d\n", t);
+            
         }
     }
     return 0;

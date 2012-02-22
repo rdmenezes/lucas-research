@@ -77,7 +77,10 @@ int MAVLink::receiveMessage() {
 			k = i;
 		}
 	}
-	return j;
+	if (j == 0) {
+		return -1;
+	}
+	return MessageMapIn.size();
 }
 
 MAVLinkMessage * MAVLink::findMessage(int id) {
@@ -98,6 +101,7 @@ void MAVLink::addMessage(mavlink_message_t &msg) {
 	MAVLinkMessage mm;
 	mm.msg = msg;
 	mm.timeReceived = getTime_ms();
+	mm.link = link;
 	char key[16];
 	sprintf(key,"%d:%d %d", msg.sysid, msg.compid, msg.msgid);
 	MessageMapIn[key] = mm;
@@ -118,6 +122,7 @@ bool MAVLink::sendMessage(mavlink_message_t &msg) {
 	} else {
 		mm.timeReceived = getTime_ms();
 	}
+	mm.link = link;
     MessageMapOut[key] = mm;
     return true;//sendMessages();
 }
@@ -140,12 +145,13 @@ int MAVLink::sendMessages() {
         }
     }
     if (earliestTime == -1) { return MessageMapOut.size();}
+
 	int msg_len = mavlink_msg_to_send_buffer(buffer, &(MessageMapOut[key].msg));
     lastSendTime = getTime_ms();
     int id = (MessageMapOut[key].msg).msgid;
-    MessageMapOut.erase(key);
-    int ret = id*link->send((char *)buffer, msg_len);
-	return ret;
+    int ret = id*(MessageMapOut[key].link)->send((char *)buffer, msg_len);
+	MessageMapOut.erase(key);
+	return MessageMapOut.size();
 }
 
 /* Get the time (Milliseconds since midnight)

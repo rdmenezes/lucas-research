@@ -1,7 +1,7 @@
-﻿Build started 20/02/2012 12:12:50.
-     1>Project "C:\Users\Owen\Documents\lucas-research\APMMAVLink\XPlaneMAVLink\XPlaneMAVLink.vcxproj" on node 3 (build target(s)).
+﻿Build started 22/02/2012 12:02:04.
+     1>Project "C:\Users\Owen\Documents\lucas-research\APMMAVLink\XPlaneMAVLink\XPlaneMAVLink.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "Debug\XPlaneMAVLink.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Touching "Debug\XPlaneMAVLink.unsuccessfulbuild".
        ClCompile:
          All outputs are up-to-date.
        Link:
@@ -19,7 +19,6 @@
          ..\..\SDK\Libraries\Win\XPLM.lib
          ..\..\SDK\Libraries\Win\XPWidgets.lib
          "C:\Users\Owen\Documents\lucas-research\APMMAVLink\Debug\DataLink.lib"
-         LINK : C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl not found or not built by the last incremental link; performing full link
             Creating library C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.lib and object C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.exp
          XPlaneMAVLink.vcxproj -> C:\X-Plane 9\Resources\plugins\XPlaneMAVLink.xpl
        Manifest:
@@ -31,4 +30,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.29
+Time Elapsed 00:00:00.28

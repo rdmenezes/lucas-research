@@ -41,6 +41,7 @@
 struct MAVLinkMessage {
 	mavlink_message_t msg;
 	long timeReceived;
+	DataLink *link;
 };
 
 #ifdef _WIN32

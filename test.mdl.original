@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.35"
+    ComputedModelVersion    "1.47"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -26,9 +26,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "Owen"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Feb 16 11:08:20 2012"
-  RTWModifiedTimeStamp	  251217879
-  ModelVersionFormat	  "1.%<AutoIncrement:35>"
+  LastModifiedDate	  "Wed Feb 22 11:40:16 2012"
+  RTWModifiedTimeStamp	  251812583
+  ModelVersionFormat	  "1.%<AutoIncrement:47>"
   ConfigurationManager	  "None"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
@@ -685,18 +685,10 @@ Model {
       VectorParams1D	      on
       ZeroCross		      on
     }
-    Block {
-      BlockType		      TransferFcn
-      Numerator		      "[1]"
-      Denominator	      "[1 2 1]"
-      AbsoluteTolerance	      "auto"
-      ContinuousStateAttributes	"''"
-      Realization	      "auto"
-    }
   }
   System {
     Name		    "test"
-    Location		    [1414, -155, 2372, 487]
+    Location		    [1368, -821, 2414, 764]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -710,19 +702,33 @@ Model {
     ShowPageBoundaries	    off
     ZoomFactor		    "100"
     ReportName		    "simulink-default.rpt"
-    SIDHighWatermark	    "123"
+    SIDHighWatermark	    "142"
     Block {
       BlockType		      Constant
       Name		      "Constant"
       SID		      "101"
-      Position		      [175, 440, 205, 470]
-      Value		      "0"
+      Position		      [170, 510, 200, 540]
+      Value		      "0.5"
     }
     Block {
       BlockType		      Constant
       Name		      "Constant1"
       SID		      "102"
-      Position		      [175, 395, 205, 425]
+      Position		      [170, 465, 200, 495]
+      Value		      "0"
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Constant2"
+      SID		      "136"
+      Position		      [170, 305, 200, 335]
+      Value		      "4"
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Constant3"
+      SID		      "133"
+      Position		      [170, 420, 200, 450]
       Value		      "0"
     }
     Block {
@@ -738,9 +744,9 @@ Model {
     Block {
       BlockType		      Demux
       Name		      "Demux1"
-      SID		      "106"
+      SID		      "128"
       Ports		      [1, 6]
-      Position		      [810, 746, 815, 849]
+      Position		      [835, 753, 840, 1127]
       ShowName		      off
       Outputs		      "6"
       DisplayOption	      "bar"
@@ -813,30 +819,31 @@ Model {
       BlockType		      "S-Function"
       Name		      "MAVLink Interface1"
       SID		      "122"
-      Ports		      [1, 4]
+      Ports		      [2, 5]
       Position		      [355, 251, 650, 529]
       FunctionName	      "MAVLink_Interface"
       Parameters	      "COM_Port,Baud_Rate,IP_ADDRESS,IP_PORT,SYS_ID,COMP_ID,COMP_TARG,MSG_INPUT,MSG_OUTPUT"
       EnableBusSupport	      off
       MaskPromptString	      "COM Port|Baud Rate|IP Address|Port|System ID|Component ID|Target Component|Heartbeat|Att"
-      "itude|Raw IMU|Global Position|VFR HUD|Scaled RC Channels|Raw Servo Positions|System Status|Mode|Datastream Reque"
-      "st|Attitude Command|RC Override|Attitude (HIL)|Raw GPS (HIL)|VFR HUD (HIL)"
+      "itude|Raw IMU|Global Position|Global Position 2|VFR HUD|Scaled RC Channels|Raw Servo Positions|System Status|Mod"
+      "e|Datastream Request|Attitude Command|RC Override|Attitude (HIL)|Raw GPS (HIL)|VFR HUD (HIL)"
       MaskStyleString	      "edit,edit,edit,edit,edit,edit,edit,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,"
-      "checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox"
+      "checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox"
       MaskVariables	      "COM_Port=@1;Baud_Rate=@2;IP_ADDRESS=@3;IP_PORT=@4;SYS_ID=@5;COMP_ID=@6;COMP_TARG=@7;HEART_B"
-      "EAT=@8;ATTITUDE_OUT=@9;RAW_IMU=@10;POSITION_OUT=@11;VFR_HUD=@12;RC_SCALED=@13;SERVO_OUT_RAW=@14;SYS_STATUS=@15;S"
-      "ET_MODE=@16;DATA_STREAM=@17;ATTITUDE_COMMAND=@18;RC_OVERRIDE=@19;ATTITUDE_IN=@20;GPS_RAW_IN=@21;VFR_HUD_IN=@22;"
-      MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-      MaskCallbackString      "|||||||||||||||||||||"
-      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-      MaskVisibilityString    "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      "EAT=@8;ATTITUDE_OUT=@9;RAW_IMU=@10;POSITION_OUT=@11;POSITION_OUT2=@12;VFR_HUD=@13;RC_SCALED=@14;SERVO_OUT_RAW=@1"
+      "5;SYS_STATUS=@16;SET_MODE=@17;DATA_STREAM=@18;ATTITUDE_COMMAND=@19;RC_OVERRIDE=@20;ATTITUDE_IN=@21;GPS_RAW_IN=@2"
+      "2;VFR_HUD_IN=@23;"
+      MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskCallbackString      "||||||||||||||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
       MaskInitialization      "MSG_ID_NUM_INPUT = [uint8(11) uint8(66) uint8(70) uint8(55) uint8(30) uint8(32) uint8(7"
       "3)];\nMSG_ID_NAME_INPUT = [SET_MODE DATA_STREAM RC_OVERRIDE ATTITUDE_COMMAND ATTITUDE_IN GPS_RAW_IN VFR_HUD_IN];"
-      "\n\nMSG_ID_NUM_OUTPUT = [uint8(0) uint8(30) uint8(28) uint8(74) uint8(73) uint8(36) uint8(37) uint8(34)];\nMSG_I"
-      "D_NAME_OUTPUT = [HEART_BEAT ATTITUDE_OUT RAW_IMU VFR_HUD POSITION_OUT RC_SCALED SERVO_OUT_RAW SYS_STATUS];\n\nid"
-      "x_input = find(MSG_ID_NAME_INPUT);\nMSG_INPUT = MSG_ID_NUM_INPUT(idx_input);\n\nidx_output = find(MSG_ID_NAME_OU"
-      "TPUT);\nMSG_OUTPUT = MSG_ID_NUM_OUTPUT(idx_output);"
+      "\n\nMSG_ID_NUM_OUTPUT = [uint8(0) uint8(30) uint8(28) uint8(73) uint8(32) uint8(74) uint8(36) uint8(37) uint8(34"
+      ")];\nMSG_ID_NAME_OUTPUT = [HEART_BEAT ATTITUDE_OUT RAW_IMU VFR_HUD POSITION_OUT2 POSITION_OUT RC_SCALED SERVO_OU"
+      "T_RAW SYS_STATUS];\n\nidx_input = find(MSG_ID_NAME_INPUT);\nMSG_INPUT = MSG_ID_NUM_INPUT(idx_input);\n\nidx_outp"
+      "ut = find(MSG_ID_NAME_OUTPUT);\nMSG_OUTPUT = MSG_ID_NUM_OUTPUT(idx_output);"
       MaskDisplay	      "%Label block\n\nif (~strcmp(COM_Port, ''))\nfprintf('MAVLink Serial\\n%s\\n%dbps', COM_Port, "
       " Baud_Rate)\nend\nif (~strcmp(IP_ADDRESS, ''))\nfprintf('MAVLink TCP\\n%s:%d', IP_ADDRESS,  IP_PORT)\nend\nfprin"
       "tf('\\n\\n\\n\\n\\n%d:%d\\n%s', SYS_ID, COMP_ID, COMP_TARG)\n\n\n%Label input ports\n\nin = 1;\nif (SET_MODE == "
@@ -848,26 +855,27 @@ Model {
       "rts\n\nout = 1;\nif (HEART_BEAT == 1)\n    port_label('output', out, 'Heartbeat');\n    out = out + 1;\nend\nif "
       "(ATTITUDE_OUT == 1)\n    port_label('output', out, 'Attitude');\n    out = out + 1;\nend\nif (RAW_IMU == 1)\n   "
       " port_label('output', out, 'Raw IMU');\n    out = out + 1;\nend\nif (POSITION_OUT == 1)\n    port_label('output'"
-      ", out, 'Global Position');\n    out = out + 1;\nend\nif (VFR_HUD == 1)\n    port_label('output', out, 'VFR HUD')"
-      ";\n    out = out + 1;\nend\nif (RC_SCALED == 1)\n    port_label('output', out, 'Scaled RC Channels');\n    out ="
-      " out + 1;\nend\nif (SERVO_OUT_RAW == 1)\n    port_label('output', out, 'Raw Servo Output');\n    out = out + 1;\n"
-      "end\nif (SYS_STATUS == 1)\n    port_label('output', out, 'System Status');\n    out = out + 1;\nend"
+      ", out, 'Global Position');\n    out = out + 1;\nend\nif (POSITION_OUT2 == 1)\n    port_label('output', out, 'Glo"
+      "bal Position 2');\n    out = out + 1;\nend\nif (VFR_HUD == 1)\n    port_label('output', out, 'VFR HUD');\n    ou"
+      "t = out + 1;\nend\nif (RC_SCALED == 1)\n    port_label('output', out, 'Scaled RC Channels');\n    out = out + 1;"
+      "\nend\nif (SERVO_OUT_RAW == 1)\n    port_label('output', out, 'Raw Servo Output');\n    out = out + 1;\nend\nif "
+      "(SYS_STATUS == 1)\n    port_label('output', out, 'System Status');\n    out = out + 1;\nend"
       MaskIconFrame	      on
       MaskIconOpaque	      on
       MaskIconRotate	      "none"
       MaskPortRotate	      "default"
       MaskIconUnits	      "autoscale"
-      MaskValueString	      "'COM6'|115200|''|5013|255|0|'/aircraft/LU-WOTB/APM'|off|on|off|on|on|off|off|on|off|off|o"
-      "n|off|off|off|off"
+      MaskValueString	      "''|115200|'131.231.124.183'|5023|255|0|'/aircraft/LU-WOTB/APM'|off|on|off|on|on|on|off|of"
+      "f|on|on|off|on|off|off|off|off"
       MaskTabNameString	      "Connection,Connection,Connection,Connection,MAVLink,MAVLink,MAVLink,Outputs,Outputs,Out"
-      "puts,Outputs,Outputs,Outputs,Outputs,Outputs,Inputs,Inputs,Inputs,Inputs,Inputs,Inputs,Inputs"
+      "puts,Outputs,Outputs,Outputs,Outputs,Outputs,Outputs,Inputs,Inputs,Inputs,Inputs,Inputs,Inputs,Inputs"
     }
     Block {
       BlockType		      Mux
       Name		      "Mux"
       SID		      "100"
       Ports		      [4, 1]
-      Position		      [315, 298, 325, 477]
+      Position		      [310, 368, 320, 547]
       ShowName		      off
       DisplayOption	      "bar"
     }
@@ -888,37 +896,61 @@ Model {
       Ports		      [1]
       Position		      [935, 534, 965, 566]
       Floating		      off
-      Location		      [1021, -3, 2387, 676]
-      Open		      on
+      Location		      [5, 48, 1371, 727]
+      Open		      off
       NumInputPorts	      "1"
+      ZoomMode		      "yonly"
       List {
 	ListType		AxesTitles
 	axes1			"%<SignalLabel>"
       }
       TimeRange		      "7"
-      YMin		      "-1"
-      YMax		      "1"
+      YMin		      "0"
+      YMax		      "13000"
       SaveName		      "ScopeData1"
       DataFormat	      "StructureWithTime"
       SampleTime	      "0"
     }
     Block {
       BlockType		      Scope
-      Name		      "Scope2"
-      SID		      "108"
+      Name		      "Scope10"
+      SID		      "141"
       Ports		      [1]
-      Position		      [925, 744, 955, 776]
+      Position		      [885, 834, 915, 866]
       Floating		      off
-      Location		      [1367, -847, 2417, 784]
+      Location		      [1069, -136, 2435, 543]
       Open		      off
       NumInputPorts	      "1"
+      ZoomMode		      "xonly"
       List {
 	ListType		AxesTitles
 	axes1			"%<SignalLabel>"
       }
       TimeRange		      "7"
-      YMin		      "11.72"
-      YMax		      "11.815"
+      YMin		      "30.3"
+      YMax		      "30.55"
+      SaveName		      "ScopeData9"
+      DataFormat	      "StructureWithTime"
+      SampleTime	      "0"
+    }
+    Block {
+      BlockType		      Scope
+      Name		      "Scope2"
+      SID		      "125"
+      Ports		      [1]
+      Position		      [725, 319, 755, 351]
+      Floating		      off
+      Location		      [1496, -47, 2273, 632]
+      Open		      off
+      NumInputPorts	      "1"
+      ZoomMode		      "xonly"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+      }
+      TimeRange		      "7"
+      YMin		      "-50"
+      YMax		      "1100"
       SaveName		      "ScopeData2"
       DataFormat	      "StructureWithTime"
       SampleTime	      "0"
@@ -930,16 +962,17 @@ Model {
       Ports		      [1]
       Position		      [910, 134, 940, 166]
       Floating		      off
-      Location		      [1367, -847, 2417, 784]
+      Location		      [1, 48, 1367, 727]
       Open		      off
       NumInputPorts	      "1"
+      ZoomMode		      "xonly"
       List {
 	ListType		AxesTitles
 	axes1			"%<SignalLabel>"
       }
       TimeRange		      "7"
-      YMin		      "-0.1"
-      YMax		      "1.5"
+      YMin		      "-1.2"
+      YMax		      "0.1"
       SaveName		      "ScopeData3"
       DataFormat	      "StructureWithTime"
       SampleTime	      "0"
@@ -949,7 +982,50 @@ Model {
       Name		      "Scope4"
       SID		      "123"
       Ports		      [1]
-      Position		      [600, 689, 630, 721]
+      Position		      [740, 689, 770, 721]
+      Floating		      off
+      Location		      [5, 48, 1367, 727]
+      Open		      off
+      NumInputPorts	      "1"
+      ZoomMode		      "yonly"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+      }
+      TimeRange		      "7"
+      YMin		      "-1"
+      YMax		      "1"
+      DataFormat	      "StructureWithTime"
+      SampleTime	      "0"
+    }
+    Block {
+      BlockType		      Scope
+      Name		      "Scope5"
+      SID		      "127"
+      Ports		      [1]
+      Position		      [885, 904, 915, 936]
+      Floating		      off
+      Location		      [1069, -136, 2435, 543]
+      Open		      off
+      NumInputPorts	      "1"
+      ZoomMode		      "yonly"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+      }
+      TimeRange		      "7"
+      YMin		      "286"
+      YMax		      "288"
+      SaveName		      "ScopeData4"
+      DataFormat	      "StructureWithTime"
+      SampleTime	      "0"
+    }
+    Block {
+      BlockType		      Scope
+      Name		      "Scope6"
+      SID		      "126"
+      Ports		      [1]
+      Position		      [725, 374, 755, 406]
       Floating		      off
       Location		      [5, 48, 1371, 727]
       Open		      off
@@ -960,8 +1036,74 @@ Model {
 	axes1			"%<SignalLabel>"
       }
       TimeRange		      "7"
+      YMax		      "105"
+      SaveName		      "ScopeData5"
+      DataFormat	      "StructureWithTime"
+      SampleTime	      "0"
+    }
+    Block {
+      BlockType		      Scope
+      Name		      "Scope7"
+      SID		      "138"
+      Ports		      [1]
+      Position		      [740, 869, 770, 901]
+      Floating		      off
+      Location		      [5, 48, 1371, 727]
+      Open		      off
+      NumInputPorts	      "1"
+      ZoomMode		      "xonly"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+      }
+      TimeRange		      "7"
+      YMin		      "30"
+      YMax		      "52"
+      SaveName		      "ScopeData6"
+      DataFormat	      "StructureWithTime"
+      SampleTime	      "0"
+    }
+    Block {
+      BlockType		      Scope
+      Name		      "Scope8"
+      SID		      "139"
+      Ports		      [1]
+      Position		      [740, 979, 770, 1011]
+      Floating		      off
+      Location		      [5, 48, 1371, 727]
+      Open		      off
+      NumInputPorts	      "1"
+      ZoomMode		      "xonly"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+      }
+      TimeRange		      "7"
+      YMin		      "30"
+      YMax		      "52"
+      SaveName		      "ScopeData7"
+      DataFormat	      "StructureWithTime"
+      SampleTime	      "0"
+    }
+    Block {
+      BlockType		      Scope
+      Name		      "Scope9"
+      SID		      "140"
+      Ports		      [1]
+      Position		      [885, 774, 915, 806]
+      Floating		      off
+      Location		      [1069, -136, 2435, 543]
+      Open		      off
+      NumInputPorts	      "1"
+      ZoomMode		      "xonly"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+      }
+      TimeRange		      "7"
       YMin		      "0"
-      YMax		      "18000"
+      YMax		      "375"
+      SaveName		      "ScopeData8"
       DataFormat	      "StructureWithTime"
       SampleTime	      "0"
     }
@@ -982,48 +1124,21 @@ Model {
     }
     Block {
       BlockType		      Step
-      Name		      "Step"
-      SID		      "109"
-      Position		      [175, 305, 205, 335]
+      Name		      "Step1"
+      SID		      "110"
+      Position		      [120, 490, 150, 520]
       Time		      "15"
-      Before		      "-1"
+      Before		      "0.2"
       SampleTime	      "0"
     }
     Block {
       BlockType		      Step
-      Name		      "Step1"
-      SID		      "110"
-      Position		      [125, 350, 155, 380]
+      Name		      "Step2"
+      SID		      "134"
+      Position		      [135, 375, 165, 405]
       Time		      "15"
       Before		      "-1"
       SampleTime	      "0"
-    }
-    Block {
-      BlockType		      TransferFcn
-      Name		      "Transfer Fcn1"
-      SID		      "112"
-      Position		      [740, 52, 800, 88]
-      Denominator	      "[0.1 1]"
-    }
-    Block {
-      BlockType		      TransferFcn
-      Name		      "Transfer Fcn2"
-      SID		      "120"
-      Position		      [740, 122, 800, 158]
-      Denominator	      "[0.1 1]"
-    }
-    Block {
-      BlockType		      TransferFcn
-      Name		      "Transfer Fcn3"
-      SID		      "121"
-      Position		      [740, 182, 800, 218]
-      Denominator	      "[0.1 1]"
-    }
-    Line {
-      SrcBlock		      "MAVLink Interface1"
-      SrcPort		      4
-      DstBlock		      "Demux"
-      DstPort		      1
     }
     Line {
       SrcBlock		      "Demux"
@@ -1062,12 +1177,6 @@ Model {
       DstPort		      1
     }
     Line {
-      SrcBlock		      "Mux"
-      SrcPort		      1
-      DstBlock		      "MAVLink Interface1"
-      DstPort		      1
-    }
-    Line {
       SrcBlock		      "Constant"
       SrcPort		      1
       DstBlock		      "Mux"
@@ -1077,72 +1186,6 @@ Model {
       SrcBlock		      "Constant1"
       SrcPort		      1
       DstBlock		      "Mux"
-      DstPort		      3
-    }
-    Line {
-      SrcBlock		      "Step1"
-      SrcPort		      1
-      DstBlock		      "Mux"
-      DstPort		      2
-    }
-    Line {
-      SrcBlock		      "Step"
-      SrcPort		      1
-      DstBlock		      "Mux"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "MAVLink Interface1"
-      SrcPort		      2
-      Points		      [120, 0; 0, 440]
-      DstBlock		      "Demux1"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "Demux1"
-      SrcPort		      1
-      DstBlock		      "Scope2"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "Demux2"
-      SrcPort		      1
-      Points		      [25, 0]
-      DstBlock		      "Transfer Fcn1"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "Demux2"
-      SrcPort		      2
-      DstBlock		      "Transfer Fcn2"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "Demux2"
-      SrcPort		      3
-      Points		      [10, 0; 0, 45]
-      DstBlock		      "Transfer Fcn3"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "Transfer Fcn1"
-      SrcPort		      1
-      Points		      [20, 0; 0, 60]
-      DstBlock		      "Mux1"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "Transfer Fcn2"
-      SrcPort		      1
-      Points		      [10, 0; 0, 10]
-      DstBlock		      "Mux1"
-      DstPort		      2
-    }
-    Line {
-      SrcBlock		      "Transfer Fcn3"
-      SrcPort		      1
-      Points		      [25, 0; 0, -30]
-      DstBlock		      "Mux1"
       DstPort		      3
     }
     Line {
@@ -1160,7 +1203,7 @@ Model {
     Line {
       SrcBlock		      "MAVLink Interface1"
       SrcPort		      1
-      Points		      [15, 0]
+      Points		      [0, 5; 15, 0]
       Branch {
 	Points			[0, 420]
 	DstBlock		"Scope4"
@@ -1171,6 +1214,118 @@ Model {
 	DstBlock		"Demux2"
 	DstPort			1
       }
+    }
+    Line {
+      SrcBlock		      "MAVLink Interface1"
+      SrcPort		      2
+      DstBlock		      "Scope2"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "MAVLink Interface1"
+      SrcPort		      3
+      DstBlock		      "Scope6"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "MAVLink Interface1"
+      SrcPort		      5
+      Points		      [125, 0]
+      DstBlock		      "Demux"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "MAVLink Interface1"
+      SrcPort		      4
+      Points		      [60, 0; 0, 495]
+      DstBlock		      "Demux1"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Demux1"
+      SrcPort		      3
+      Points		      [25, 0]
+      DstBlock		      "Scope5"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Demux2"
+      SrcPort		      1
+      Points		      [100, 0; 0, 5]
+      DstBlock		      "Mux1"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Demux2"
+      SrcPort		      2
+      Points		      [80, 0; 0, 10]
+      DstBlock		      "Mux1"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Demux2"
+      SrcPort		      3
+      Points		      [60, 0; 0, 15]
+      DstBlock		      "Mux1"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Constant3"
+      SrcPort		      1
+      DstBlock		      "Mux"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Step2"
+      SrcPort		      1
+      DstBlock		      "Mux"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Mux"
+      SrcPort		      1
+      Points		      [5, 0]
+      Branch {
+	DstBlock		"MAVLink Interface1"
+	DstPort			2
+      }
+      Branch {
+	Points			[0, 550; 20, 0]
+      }
+    }
+    Line {
+      SrcBlock		      "Constant2"
+      SrcPort		      1
+      Points		      [40, 0]
+      Branch {
+	DstBlock		"MAVLink Interface1"
+	DstPort			1
+      }
+      Branch {
+	Points			[0, 550; 105, 0]
+      }
+    }
+    Line {
+      Points		      [655, 885]
+      DstBlock		      "Scope7"
+      DstPort		      1
+    }
+    Line {
+      Points		      [655, 995]
+      DstBlock		      "Scope8"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Demux1"
+      SrcPort		      1
+      DstBlock		      "Scope9"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Demux1"
+      SrcPort		      2
+      DstBlock		      "Scope10"
+      DstPort		      1
     }
   }
 }

@@ -32,7 +32,7 @@
  *	(HIL), ArduCopter, and X-Plane on Linux.
  */
 
-
+#define MAX_TRAFFIC 8
 #define PI 3.14159
 #define VERSION 1.0
 #include <winsock2.h>
@@ -45,6 +45,7 @@
 #include "XPWidgets.h"
 #include "XPStandardWidgets.h"
 #include "XPLMMenus.h"
+#include "XPLMPlanes.h"
 
 #include "TCPDataLink.h"
 #include "SerialDataLink.h"
@@ -80,6 +81,31 @@ DataRef R("sim/flightmodel/position/R");
 DataRef joystickOverride("sim/operation/override/override_joystick");
 DataRef throttleOverride("sim/operation/override/override_throttles");
 
+DataRef elevatorTraffic("sim/multiplayer/controls/yoke_pitch_ratio");
+DataRef aileronTraffic("sim/multiplayer/controls/yoke_roll_ratio");
+DataRef rudderTraffic("sim/multiplayer/controls/yoke_heading_ratio");
+DataRef throttleTraffic("sim/multiplayer/controls/engine_throttle_request");
+DataRef latitudeTraffic("sim/multiplayer/position/plane%d_lat",1,9);
+DataRef longitudeTraffic("sim/multiplayer/position/plane%d_lon",1,9);
+DataRef altitudeTraffic("sim/multiplayer/position/plane%d_el",1,9);
+DataRef xTraffic("sim/multiplayer/position/plane%d_x",1,9);
+DataRef yTraffic("sim/multiplayer/position/plane%d_y",1,9);
+DataRef zTraffic("sim/multiplayer/position/plane%d_z",1,9);
+DataRef vxTraffic("sim/multiplayer/position/plane%d_v_x",1,9);
+DataRef vyTraffic("sim/multiplayer/position/plane%d_v_y",1,9);
+DataRef vzTraffic("sim/multiplayer/position/plane%d_v_z",1,9);
+DataRef phiTraffic("sim/multiplayer/position/plane%d_phi",1,9);
+DataRef thetaTraffic("sim/multiplayer/position/plane%d_the",1,9);
+DataRef psiTraffic("sim/multiplayer/position/plane%d_psi",1,9);
+
+
+DataRef trafficAutopilotMode("sim/multiplayer/autopilot/autopilot_mode");
+DataRef aiOverride("sim/operation/override/override_plane_ai_autopilot");
+DataRef magneticVariation("sim/flightmodel/position/magnetic_variation");
+DataRef xWind("sim/weather/wind_now_x_msc");
+DataRef zWind("sim/weather/wind_now_z_msc");
+
+
 /* Settings window for user specified parameters (IP address, etc...) */
 SettingsWindow *w = new SettingsWindow();
 
@@ -96,7 +122,17 @@ char status[128];
 /* DataLink and MAVLink instances */
 DataLink *link;
 MAVLink *myMAV;
+DataLink *trafficLink[MAX_TRAFFIC];
+MAVLink *trafficMAV[MAX_TRAFFIC];
 bool connected = false;
+bool trafficConnected[MAX_TRAFFIC];
+
+bool trafficSetup = false;
+
+double trafficLastPhi[MAX_TRAFFIC];
+double trafficLastTheta[MAX_TRAFFIC];
+double trafficLastPsi[MAX_TRAFFIC];
+long lastTime;
 
 /* If someone else wants control, give it */
 void externalControl(bool flag) {
@@ -113,6 +149,17 @@ bool setUpDataRefs() {
 	rudder.setMultiplier(10000.0);
 	throttle.setMultiplier(20000.0);
 	throttle.setBias(-10000.0);
+
+	for (int i = 0; i<MAX_TRAFFIC; i++) {
+		elevatorTraffic.setMultiplier(10000.0);
+		aileronTraffic.setMultiplier(10000.0);
+		rudderTraffic.setMultiplier(10000.0);
+		throttleTraffic.setMultiplier(20000.0);
+		throttleTraffic.setBias(-10000.0);
+		phiTraffic.setMultiplier(PI/180.0);
+		thetaTraffic.setMultiplier(PI/180.0);
+		psiTraffic.setMultiplier(PI/180.0);
+	}
 
 	/* Angles/rates in to degrees */
 	phi.setMultiplier(PI/180.0);
@@ -153,14 +200,28 @@ void menuCallback(void *inMenuRef, void *inItemRef) {
 }
 
 
-void requestHILStreams() {
-	myMAV->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 1, 1);
-	myMAV->sendRequestStream(MAV_DATA_STREAM_POSITION, 3, 1);
-	myMAV->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1);
-	myMAV->sendRequestStream(MAV_DATA_STREAM_EXTRA2, 10, 1);
-	myMAV->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 3, 1);
-	myMAV->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 3, 1);
-	myMAV->sendRequestStream(MAV_DATA_STREAM_RAW_CONTROLLER, 50, 1);
+void requestHILStreams(MAVLink * mav) {
+	mav->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 1, 1);
+	mav->sendMessages();
+	Sleep(100);
+	mav->sendRequestStream(MAV_DATA_STREAM_POSITION, 3, 1);
+	mav->sendMessages();
+	Sleep(100);
+	mav->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1);
+	mav->sendMessages();
+	Sleep(100);
+	mav->sendRequestStream(MAV_DATA_STREAM_EXTRA2, 10, 1);
+	mav->sendMessages();
+	Sleep(100);
+	mav->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 3, 1);
+	mav->sendMessages();
+	Sleep(100);
+	mav->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 3, 1);
+	mav->sendMessages();
+	Sleep(100);
+	mav->sendRequestStream(MAV_DATA_STREAM_RAW_CONTROLLER, 50, 1);
+	mav->sendMessages();
+	Sleep(100);
 }
 
 /* This function is called when the SettingsWindow is closed
@@ -204,6 +265,45 @@ int connectCallback(SettingsWindow *w) {
 		} else {
 			sprintf(status,"No Connection to %s",ip);
 		}
+
+/*----------------------------------------------------------------*/
+		/* Multi-vehicle implementation for SITL */
+		char AircraftPath[256];
+		char *pAircraft[9];
+
+		/* Use built in RC trainer, full path needed which is annoying... */
+		strcpy(AircraftPath, "C:\\X-Plane 9\\Aircraft\\Radio Control\\GP_PT_60\\PT60RC.acf");
+
+		/* For all traffic vehicles, try connecting to an autopilot */
+		for (int i = 0; i<MAX_TRAFFIC; i++) {
+
+			/* Assumes connections start from ((base port) + 10), then increment by 10 */
+			trafficLink[i] = new TCPDataLink(ip,w->getPort()+(i+1)*10,false);
+			trafficConnected[i] = trafficLink[i]->connect();
+
+			/* If we connected to an autopilot, continue with set up */
+			if (trafficConnected[i]) {
+				trafficMAV[i] = new MAVLink(255,0,trafficLink[i]);
+				
+				/* Assume that traffic sysIDs start at 2 and increment by 1 */
+				trafficMAV[i]->setTargetComponent(i+2,1);
+
+				/* Set up streams for traffic */
+				requestHILStreams(trafficMAV[i]);
+
+				/* Turn off AI Autopilots for X-Plane AI vehicles */
+				aiOverride.setInt(i+1,1);
+
+				/* Assign aircraft model to traffic */
+				pAircraft[i] = (char *)AircraftPath;
+			} else {
+				pAircraft[i] = '\0';
+			}
+		}
+		pAircraft[8] = '\0';
+
+		/* Acquire all the traffic planes */
+		XPLMAcquirePlanes((char**)&pAircraft, NULL, NULL);
 	}
 	/* If the user wants a serial connection, try to create one */
 	if (w->getFlag() == 2) {
@@ -225,7 +325,7 @@ int connectCallback(SettingsWindow *w) {
 	Sleep(1000);
 	if (connected && myMAV->getIDFromHeartbeat()) {
 		sprintf(status, "%s (%d:%d)", status, myMAV->getTargetSystem(), myMAV->getTargetComponent());
-		requestHILStreams();
+		requestHILStreams(myMAV);
 	} else {
 		sprintf(status, "%s (?:?)", status);
 	}
@@ -243,6 +343,33 @@ bool setUpMenu() {
 	int settings = XPLMAppendMenuItem(mavlink,"Settings",(void*)+1,1);
 	int about = XPLMAppendMenuItem(mavlink,"About",(void*)+2,1);
 	return true;
+}
+
+/* Initialise all traffic vehicles to the same location as user vehicle */
+bool setupTraffic() {
+	for (int i = 0; i <MAX_TRAFFIC; i++) {
+		if (trafficConnected[i]) {
+			double X, Y, Z;
+			XPLMWorldToLocal(latitude.getDouble(),longitude.getDouble(),altitude.getDouble(), &X, &Y, &Z);
+			xTraffic.setDouble(i,X);
+			yTraffic.setDouble(i,Y);
+			zTraffic.setDouble(i,Z);
+			vxTraffic.setDouble(i,0.0);
+			vyTraffic.setDouble(i,0.0);
+			vzTraffic.setDouble(i,0.0);
+		}
+	}
+	trafficSetup = true;
+	return true;
+}
+
+long getTime_ms() {
+	SYSTEMTIME st;
+	GetSystemTime(&st);
+    return st.wMilliseconds
+		+ st.wSecond*1000
+		+ st.wMinute*1000*60
+		+ st.wHour*1000*60*60;
 }
 
 /* Quick and dirty callback to draw the status displays */
@@ -295,7 +422,6 @@ void MyDrawWindowCallback(XPLMWindowID inWindowID, void *inRefcon) {
  *	If we have a connection, send the attitude and get the control signal
  *	Returns -1.0 to tell XPlane we want to be called on the next loop iteration
  */
-int i = 0;
 float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void * inRefcon) {
 	int16_t s1,s2,s3,s4,s5,s6,s7,s8;
 	uint8_t rssi;
@@ -337,6 +463,54 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 
 	myMAV->sendMessages();
 	
+	//Have we set up the traffic? If not then do it
+	if (!trafficSetup) {
+		setupTraffic();
+	}
+
+	//Calculate time delta for the purposes of working out derivatives
+	double dt = getTime_ms() - lastTime;
+	lastTime = getTime_ms();
+
+	//Loop over all traffic vehicles
+	for (int i = 0; i <MAX_TRAFFIC; i++) {
+		
+		//If they exist, update them
+		if (trafficConnected[i]) {
+
+			//Much the same logic as for the user vehicle above
+			//Derivatives must be calculated as they don't exist as datarefs for
+			//traffic
+			m = trafficMAV[i]->receiveMessage();
+			double P = (phiTraffic.getFloat(i) - trafficLastPhi[i]) / dt * 1000.0;
+			double Q = (thetaTraffic.getFloat(i) - trafficLastTheta[i]) / dt * 1000.0;
+			double R = (psiTraffic.getFloat(i) - trafficLastPsi[i]) / dt * 1000.0;
+			trafficLastPhi[i] = phiTraffic.getFloat(i);
+			trafficLastTheta[i] = thetaTraffic.getFloat(i);
+			trafficLastPsi[i] = psiTraffic.getFloat(i);
+			trafficMAV[i]->sendAttitude(phiTraffic.getFloat(i), thetaTraffic.getFloat(i), psiTraffic.getFloat(i), P, Q, R);
+			
+			//Track, groundspeed and airspeed must be worked out from X, Y, Z
+			//X is east, Y is up, Z is south (weird coordinate system...)
+			double trk = atan2(-vzTraffic.getFloat(i),vxTraffic.getFloat(i));
+			double gs = sqrt(vzTraffic.getFloat(i)*vzTraffic.getFloat(i) + vxTraffic.getFloat(i)*vxTraffic.getFloat(i));
+			double as = sqrt((vzTraffic.getFloat(i)-zWind.getFloat())*(vzTraffic.getFloat(i)-zWind.getFloat()) + (vxTraffic.getFloat(i)-xWind.getFloat())*(vxTraffic.getFloat(i)-xWind.getFloat()));
+			trafficMAV[i]->sendRawGPS(3,latitudeTraffic.getDouble(i),longitudeTraffic.getDouble(i),altitudeTraffic.getFloat(i),0,0,gs,trk);
+
+			trafficMAV[i]->sendVFRHUD(as,gs,psiTraffic.getFloat(i),throttleTraffic.getFloat(i),altitudeTraffic.getFloat(i),vyTraffic.getFloat(i));
+
+			int16_t s1t,s2t,s3t,s4t,s5t,s6t,s7t,s8t;
+			long t = trafficMAV[i]->getScaledServos(s1t,s2t,s3t,s4t,s5t,s6t,s7t,s8t,rssi);
+			
+			aileronTraffic.setFloat(i+1,s1t);
+			elevatorTraffic.setFloat(i+1,s2t);
+			throttleTraffic.setFloat(i+1,s3t);
+			rudderTraffic.setFloat(i+1,s4t);
+		}
+	}
+
+//	sprintf(speedheight,"Position: %f %f", latitudeTraffic.getDouble(0), longitudeTraffic.getDouble(0));
+
 	//Call us on the next loop please...
 	return -1.0;
 }
