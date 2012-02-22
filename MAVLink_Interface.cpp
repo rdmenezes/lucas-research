@@ -547,7 +547,7 @@ static void mdlTerminate(SimStruct *S) {
     
     looping = false;
     int i = 0;
-    if (TerminateThread(hThreadRead, -1) == 0 ) {
+    if (hThreadRead != NULL && TerminateThread(hThreadRead, -1) == 0 ) {
         static char msg[256];
         sprintf(msg, "Could not stop thread (Error %d)",GetLastError());
         printMessage(S,msg);
@@ -573,11 +573,8 @@ DWORD WINAPI mavThreadRead(LPVOID lpParam) {
     while (looping) {
         for (int i = 0; i<mavlinkMap.size(); i++) {
             int t = mavlinkMap[i]->receiveMessage();
-            printf("%d", t);
             Sleep(1);
-            t = mavlinkMap[i]->sendMessages();
-            printf("\t%d\n", t);
-            
+            t = mavlinkMap[i]->sendMessages();            
         }
     }
     return 0;
