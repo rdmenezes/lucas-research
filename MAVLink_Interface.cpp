@@ -60,6 +60,7 @@ HANDLE hThreadRead = NULL;
 
 bool looping = true;
 bool finishedLooping = false;
+bool streamsSetup = false;
 int_T mavlink_msg_decode(SimStruct* S);
 
 DWORD WINAPI mavThreadRead(LPVOID lpParam);
@@ -187,7 +188,7 @@ static void mdlInitializeSizes(SimStruct *S) {
                 break;
             }
             case MAVLINK_MSG_ID_GPS_RAW: {
-                ssSetOutputPortWidth(S, ii, 3); /*  lat, lon, alt */
+                ssSetOutputPortWidth(S, ii, 5); /*  lat, lon, alt, gs, trk */
                 break;
             }
             case MAVLINK_MSG_ID_RC_CHANNELS_SCALED:{
@@ -381,8 +382,11 @@ static void mdlStart(SimStruct *S) {
     mavlinkMap[index] = startMAV;
 
     /* set up our streams (to default APM ground station values)*/
-    mavlink_setup_streams(S);
-    Sleep(100);
+    if (!streamsSetup) {
+        mavlink_setup_streams(S);
+        Sleep(100);
+        streamsSetup = true;
+    }
     
     /* let thread loop execute indefinately (until terminate is called) */
     looping = true;
@@ -582,10 +586,9 @@ DWORD WINAPI mavThreadRead(LPVOID lpParam) {
     while (looping) {
         for (int i = 0; i<mavlinkMap.size(); i++) {
             int t = mavlinkMap[i]->receiveMessage();
-            Sleep(1);
             t = mavlinkMap[i]->sendMessages();
-            Sleep(1);
         }
+        Sleep(1);
     }
     return 0;
 }
@@ -706,6 +709,8 @@ int_T mavlink_msg_decode(SimStruct* S) {
                     ppPwork_data[index][0] = (real_T)(lat);
                     ppPwork_data[index][1] = (real_T)(lng);
                     ppPwork_data[index][2] = (real_T)(alt);
+                    ppPwork_data[index][3] = (real_T)(v);
+                    ppPwork_data[index][4] = (real_T)(crs);
                 }
                 break;
             }

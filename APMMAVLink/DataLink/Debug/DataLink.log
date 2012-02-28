@@ -1,4 +1,4 @@
-﻿Build started 22/02/2012 11:54:46.
+﻿Build started 27/02/2012 14:42:32.
      1>Project "C:\Users\Owen\Documents\lucas-research\APMMAVLink\DataLink\DataLink.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\DataLink.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -779,4 +779,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.91
+Time Elapsed 00:00:04.73

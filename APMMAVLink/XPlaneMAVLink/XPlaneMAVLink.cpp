@@ -84,7 +84,7 @@ DataRef throttleOverride("sim/operation/override/override_throttles");
 DataRef elevatorTraffic("sim/multiplayer/controls/yoke_pitch_ratio");
 DataRef aileronTraffic("sim/multiplayer/controls/yoke_roll_ratio");
 DataRef rudderTraffic("sim/multiplayer/controls/yoke_heading_ratio");
-DataRef throttleTraffic("sim/multiplayer/controls/engine_throttle_request");
+DataRef *throttleTraffic[MAX_TRAFFIC];
 DataRef latitudeTraffic("sim/multiplayer/position/plane%d_lat",1,9);
 DataRef longitudeTraffic("sim/multiplayer/position/plane%d_lon",1,9);
 DataRef altitudeTraffic("sim/multiplayer/position/plane%d_el",1,9);
@@ -97,13 +97,16 @@ DataRef vzTraffic("sim/multiplayer/position/plane%d_v_z",1,9);
 DataRef phiTraffic("sim/multiplayer/position/plane%d_phi",1,9);
 DataRef thetaTraffic("sim/multiplayer/position/plane%d_the",1,9);
 DataRef psiTraffic("sim/multiplayer/position/plane%d_psi",1,9);
-
+DataRef trafficThrottle1("sim/multiplayer/position/plane1_throttle");
 
 DataRef trafficAutopilotMode("sim/multiplayer/autopilot/autopilot_mode");
 DataRef aiOverride("sim/operation/override/override_plane_ai_autopilot");
 DataRef magneticVariation("sim/flightmodel/position/magnetic_variation");
 DataRef xWind("sim/weather/wind_now_x_msc");
 DataRef zWind("sim/weather/wind_now_z_msc");
+
+
+XPLMDataRef tRef = XPLMFindDataRef("sim/multiplayer/controls/engine_throttle_request");
 
 
 /* Settings window for user specified parameters (IP address, etc...) */
@@ -150,16 +153,27 @@ bool setUpDataRefs() {
 	throttle.setMultiplier(20000.0);
 	throttle.setBias(-10000.0);
 
+	throttleTraffic[0] = new DataRef("sim/multiplayer/position/plane1_throttle");
+	throttleTraffic[1] = new DataRef("sim/multiplayer/position/plane2_throttle");
+	throttleTraffic[2] = new DataRef("sim/multiplayer/position/plane3_throttle");
+	throttleTraffic[3] = new DataRef("sim/multiplayer/position/plane4_throttle");
+	throttleTraffic[4] = new DataRef("sim/multiplayer/position/plane5_throttle");
+	throttleTraffic[5] = new DataRef("sim/multiplayer/position/plane6_throttle");
+	throttleTraffic[6] = new DataRef("sim/multiplayer/position/plane7_throttle");
+	throttleTraffic[7] = new DataRef("sim/multiplayer/position/plane8_throttle");
+
 	for (int i = 0; i<MAX_TRAFFIC; i++) {
 		elevatorTraffic.setMultiplier(10000.0);
 		aileronTraffic.setMultiplier(10000.0);
 		rudderTraffic.setMultiplier(10000.0);
-		throttleTraffic.setMultiplier(20000.0);
-		throttleTraffic.setBias(-10000.0);
+		throttleTraffic[i]->setMultiplier(20000.0);
+		throttleTraffic[i]->setBias(-10000.0);
 		phiTraffic.setMultiplier(PI/180.0);
 		thetaTraffic.setMultiplier(PI/180.0);
 		psiTraffic.setMultiplier(PI/180.0);
 	}
+	trafficThrottle1.setMultiplier(20000.0);
+	trafficThrottle1.setBias(-10000.0);
 
 	/* Angles/rates in to degrees */
 	phi.setMultiplier(PI/180.0);
@@ -243,6 +257,15 @@ int connectCallback(SettingsWindow *w) {
 		link->disconnect();
 		delete link;	//properly destroy the link, just to be sure
 		link = NULL;
+		for (int i = 0; i <MAX_TRAFFIC; i++) {
+			if (trafficConnected[i]) {
+				trafficLink[i]->disconnect();
+				delete trafficLink[i];
+				trafficLink[i] = NULL;
+				delete trafficMAV[i];
+				trafficMAV[i] = NULL;
+			}
+		}
 	}
 	/* If user doesn't want a link, don't give them one! */
 	if (w->getFlag() == 0) {
@@ -272,7 +295,9 @@ int connectCallback(SettingsWindow *w) {
 		char *pAircraft[9];
 
 		/* Use built in RC trainer, full path needed which is annoying... */
-		strcpy(AircraftPath, "C:\\X-Plane 9\\Aircraft\\Radio Control\\GP_PT_60\\PT60RC.acf");
+		strcpy(AircraftPath, "C:\\X-Plane 10\\Aircraft\\Radio Control\\GP_PT_60\\PT60RC.acf");
+
+		aiOverride.setInt(0,1);
 
 		/* For all traffic vehicles, try connecting to an autopilot */
 		for (int i = 0; i<MAX_TRAFFIC; i++) {
@@ -303,7 +328,7 @@ int connectCallback(SettingsWindow *w) {
 		pAircraft[8] = '\0';
 
 		/* Acquire all the traffic planes */
-		XPLMAcquirePlanes((char**)&pAircraft, NULL, NULL);
+	//	XPLMAcquirePlanes((char**)&pAircraft, NULL, NULL);
 	}
 	/* If the user wants a serial connection, try to create one */
 	if (w->getFlag() == 2) {
@@ -352,10 +377,10 @@ bool setupTraffic() {
 			double X, Y, Z;
 			XPLMWorldToLocal(latitude.getDouble(),longitude.getDouble(),altitude.getDouble(), &X, &Y, &Z);
 			xTraffic.setDouble(i,X);
-			yTraffic.setDouble(i,Y);
+			yTraffic.setDouble(i,Y+100);
 			zTraffic.setDouble(i,Z);
 			vxTraffic.setDouble(i,0.0);
-			vyTraffic.setDouble(i,0.0);
+			vyTraffic.setDouble(i,30.0);
 			vzTraffic.setDouble(i,0.0);
 		}
 	}
@@ -472,6 +497,8 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	double dt = getTime_ms() - lastTime;
 	lastTime = getTime_ms();
 
+	externalControl(false);
+
 	//Loop over all traffic vehicles
 	for (int i = 0; i <MAX_TRAFFIC; i++) {
 		
@@ -497,14 +524,19 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 			double as = sqrt((vzTraffic.getFloat(i)-zWind.getFloat())*(vzTraffic.getFloat(i)-zWind.getFloat()) + (vxTraffic.getFloat(i)-xWind.getFloat())*(vxTraffic.getFloat(i)-xWind.getFloat()));
 			trafficMAV[i]->sendRawGPS(3,latitudeTraffic.getDouble(i),longitudeTraffic.getDouble(i),altitudeTraffic.getFloat(i),0,0,gs,trk);
 
-			trafficMAV[i]->sendVFRHUD(as,gs,psiTraffic.getFloat(i),throttleTraffic.getFloat(i),altitudeTraffic.getFloat(i),vyTraffic.getFloat(i));
-
+			trafficMAV[i]->sendVFRHUD(as,gs,psiTraffic.getFloat(i),(throttleTraffic[i]->getFloat(0)+10000)/200,altitudeTraffic.getFloat(i),vyTraffic.getFloat(i));
+		
 			int16_t s1t,s2t,s3t,s4t,s5t,s6t,s7t,s8t;
 			long t = trafficMAV[i]->getScaledServos(s1t,s2t,s3t,s4t,s5t,s6t,s7t,s8t,rssi);
-			
+			sprintf(controls,"A:%-4.0f E:%-4.0f T:%-4.0f R:%-4.0f",(s1t/100.0),(s2t/100.0),(50.0+s3t/200.0),(s4t/100.0));
 			aileronTraffic.setFloat(i+1,s1t);
 			elevatorTraffic.setFloat(i+1,s2t);
-			throttleTraffic.setFloat(i+1,s3t);
+			throttleTraffic[0]->setFloat(0,10000);
+//			float throttle[20];
+//			for (i = 0; i<20; i++) {
+//				throttle[i] = 1.0;
+//			}
+//			XPLMSetDatavf(tRef,throttle,1,1);
 			rudderTraffic.setFloat(i+1,s4t);
 		}
 	}
@@ -563,6 +595,11 @@ PLUGIN_API void	XPluginStop(void) {
 	if (link != NULL) {
 		link->disconnect();
 	}
+/*	for (int i = 0; i <MAX_TRAFFIC; i++) {
+		if (trafficConnected[i]) {
+			trafficLink[i]->disconnect();
+		}
+	}*/
 	XPLMDestroyWindow(gWindow);
 }
 
