@@ -22,7 +22,7 @@ bool SerialDataLink::connect() {
 			0);
 	if(hSerial==INVALID_HANDLE_VALUE){
 		if(GetLastError()==ERROR_FILE_NOT_FOUND){
-			fprintf(stderr,"COM Port not found in SerialDataLink\n");
+			fprintf(stderr,"%s not found in SerialDataLink\n", comPort);
 			return false;
 		}
 		fprintf(stderr,"Invalid COM Port in SerialDataLink\n");
@@ -45,8 +45,8 @@ bool SerialDataLink::connect() {
 		return false;
 	}
     COMMTIMEOUTS timeouts={0};
-	timeouts.ReadIntervalTimeout=1;
-    timeouts.ReadTotalTimeoutConstant=10;
+	timeouts.ReadIntervalTimeout=0.01;
+    timeouts.ReadTotalTimeoutConstant=0;
     timeouts.ReadTotalTimeoutMultiplier=0;
     timeouts.WriteTotalTimeoutConstant=5;
     timeouts.WriteTotalTimeoutMultiplier=0;

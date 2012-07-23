@@ -24,5 +24,5 @@
 #	require an address), use 0-0
 
 /aircraft/LU-WOTA/APM	1	1	13A200-40771103
-/aircraft/LU-WOTB/APM	2	1	13A200-407710D9
+/aircraft/LU-WOTB/APM	2	1	0-0
 /heli/LU-TRPO/APM   10  1   0-0
