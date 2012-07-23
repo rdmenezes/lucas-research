@@ -46,7 +46,11 @@ bool MAVLink::getIDFromHeartbeat() {
 				return true;
 			}
 		}
+#ifdef _WIN32
 		Sleep(10);
+#elif __linux__
+		usleep(10000);
+#endif
 	}
 
 	this->targetSystemId = -1;

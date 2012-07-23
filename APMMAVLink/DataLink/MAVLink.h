@@ -14,6 +14,7 @@
 	#include <windows.h>
 #else
 	#include <sys/time.h>
+	#include <unistd.h>
 #endif
 #include <stdio.h>
 
@@ -101,7 +102,8 @@ private:
 	static std::map<std::string, MAVLinkMessage> MessageMapIn;
     static std::map<std::string, MAVLinkMessage> MessageMapOut;
 #elif __linux__
-	std::map<std::string, MAVLinkMessage> MessageMap;
+	static std::map<std::string, MAVLinkMessage> MessageMapIn;
+    static std::map<std::string, MAVLinkMessage> MessageMapOut;
 #else
 //Array implementation no longer works with static maps (using int array keys)
 //	MAVLinkMessage MessageMap[255];

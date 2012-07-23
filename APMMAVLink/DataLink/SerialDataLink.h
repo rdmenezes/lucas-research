@@ -1,9 +1,20 @@
 #ifndef SerialDataLink_h
 #define SerialDataLink_h
 
-#include <windows.h>
+#ifdef _WIN32
+	#include <windows.h>
+#else
+	#define DWORD int
+	#define HANDLE int
+	#include <unistd.h>
+	#include <fcntl.h>
+	#include <errno.h>
+	#include <termios.h>
+#endif
 #include <stdio.h>
 #include <math.h>
+
+
 #include "DataLink.h"
 
 
