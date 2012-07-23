@@ -1,4 +1,4 @@
-﻿Build started 27/02/2012 14:42:43.
+﻿Build started 22/05/2012 11:03:10.
      1>Project "C:\Users\Owen\Documents\lucas-research\APMMAVLink\TestApplication\TestApplication.vcxproj" on node 3 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\TestApplication.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -25,4 +25,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.94
+Time Elapsed 00:00:03.07

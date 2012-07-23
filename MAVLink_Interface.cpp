@@ -281,12 +281,12 @@ static void mdlStart(SimStruct *S) {
         if (strcmp(strCOM,"") != 0) {
             /* Make a serial data object */
             startLink = new SerialDataLink(strCOM, baud);
-            ((SerialDataLink*)startLink)->setNumberOfStopBits(ONESTOPBIT);
+  //          ((SerialDataLink*)startLink)->setNumberOfStopBits(TWOSTOPBITS);
             
             /* If we're an API connection, overright the link object */
              if (myComponent->getPhysicalAddressHigh() != 0 && myComponent->getPhysicalAddressLow() != 0) {
                 startLink = new XBeeAPIDataLink(*(SerialDataLink*)startLink,myComponent->getPhysicalAddressHigh(),myComponent->getPhysicalAddressLow());
-                ((SerialDataLink*)startLink)->setNumberOfStopBits(ONESTOPBIT);
+ //               ((SerialDataLink*)startLink)->setNumberOfStopBits(TWOSTOPBITS);
              }
             isSerial = true;
         }
@@ -341,7 +341,7 @@ static void mdlStart(SimStruct *S) {
                 zigbeeAPI = true;
                 delete startLink;
                 startLink = new XBeeAPIDataLink(*(SerialDataLink*)linkMap[i],myComponent->getPhysicalAddressHigh(),myComponent->getPhysicalAddressLow());
-                ((SerialDataLink*)startLink)->setNumberOfStopBits(ONESTOPBIT);
+                ((SerialDataLink*)startLink)->setNumberOfStopBits(TWOSTOPBITS);
             }
         }
     }
@@ -586,9 +586,11 @@ DWORD WINAPI mavThreadRead(LPVOID lpParam) {
     while (looping) {
         for (int i = 0; i<mavlinkMap.size(); i++) {
             int t = mavlinkMap[i]->receiveMessage();
+            if (t<0) {
+                printf("%d packets dropped!\n",-t);
+            }
             t = mavlinkMap[i]->sendMessages();
-        }
-        Sleep(1);
+        } 
     }
     return 0;
 }
@@ -607,24 +609,24 @@ void mavlink_setup_streams(SimStruct* S) {
         Sleep(100);
     
   //  for (int_T index = 0; index < nOutputPorts; index++){
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 3, 1);
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTENDED_STATUS, 5, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_POSITION, 10, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 10, 1);
+        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA1, 15, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
         mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_EXTRA2, 10, 1);
         mavlinkMap[myIndex]->sendMessages();
         Sleep(100);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 0, 0);
-        mavlinkMap[myIndex]->sendMessages();
-        Sleep(100);
-        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 0, 0);        
-        mavlinkMap[myIndex]->sendMessages();
-        Sleep(100);
+//        mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RAW_SENSORS, 10, 1);
+//        mavlinkMap[myIndex]->sendMessages();
+//        Sleep(100);
+ //       mavlinkMap[myIndex]->sendRequestStream(MAV_DATA_STREAM_RC_CHANNELS, 0, 0);        
+  //      mavlinkMap[myIndex]->sendMessages();
+//        Sleep(100);
 //    }
 }
 

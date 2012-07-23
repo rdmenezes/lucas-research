@@ -72,19 +72,33 @@ int MAVLink::receiveMessage() {
 	int msg_len = link->receive(MAVLINK_BUFFER_SIZE,(char*)(buffer));
 	int j = 0;
 	int k = 0;
+	int err = 1;
+
+
 	for (int i=0; i<(msg_len); i++) {
-		if (mavlink_parse_char(0,buffer[i],&msg,&status)) {
+		if (mavlink_parse_char(targetSystemId,buffer[i],&msg,&status)) {
 			addMessage(msg);
+			err = msg.seq - lastSeq;
+			if (msg.seq != 0 && msg.seq != lastSeq+1) {
+				printf("%d", msg.seq);
+				printf("\t%d", msg.msgid);
+				printf("\tfrom %d\n", msg.sysid);
+				err = -(msg.seq - (lastSeq+1));
+			}
+			lastSeq = msg.seq;
 			memset(&msg,'\0',sizeof(mavlink_message_t));
 			memset(&status,'\0',sizeof(mavlink_status_t));
 			j++;
 			k = i;
+//			printf("@ 0x%X (%d) 0x%X %d\n", buffer[i+1], i+1, buffer[msg_len-1], msg_len);
 		}
+//		printf("s:%d\n", status.parse_state);
 	}
 	if (j == 0) {
-		return -1;
+		return 0;
 	}
-	return MessageMapIn.size();
+
+	return err;
 }
 
 MAVLinkMessage * MAVLink::findMessage(int id) {
@@ -128,7 +142,7 @@ bool MAVLink::sendMessage(mavlink_message_t &msg) {
 	}
 	mm.link = link;
     MessageMapOut[key] = mm;
-    return true;//sendMessages();
+    return sendMessages();
 }
 
 

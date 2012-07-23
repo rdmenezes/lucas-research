@@ -26,7 +26,7 @@
 
 //send/receive buffer size
 #define MAVLINK_BUFFER_SIZE 1024
-#define SEND_RATE 20
+#define SEND_RATE 10
 
 //timeouts
 #define MAVLINK_ATTITUDE_TIMEOUT 1000
@@ -108,6 +108,9 @@ private:
 //Array implementation no longer works with static maps (using int array keys)
 //	MAVLinkMessage MessageMap[255];
 #endif
+
+	int lastSeq;
+
 };
 
 #endif

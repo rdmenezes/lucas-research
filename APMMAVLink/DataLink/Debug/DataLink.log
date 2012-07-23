@@ -1,4 +1,4 @@
-﻿Build started 27/02/2012 14:42:32.
+﻿Build started 22/05/2012 11:03:08.
      1>Project "C:\Users\Owen\Documents\lucas-research\APMMAVLink\DataLink\DataLink.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\DataLink.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -750,12 +750,13 @@
                  ]
      1>c:\users\owen\documents\lucas-research\apmmavlink\datalink\mavlink.cpp(42): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(325) : see declaration of 'sscanf'
-     1>c:\users\owen\documents\lucas-research\apmmavlink\datalink\mavlink.cpp(88): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\owen\documents\lucas-research\apmmavlink\datalink\mavlink.cpp(102): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
-     1>c:\users\owen\documents\lucas-research\apmmavlink\datalink\mavlink.cpp(106): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\owen\documents\lucas-research\apmmavlink\datalink\mavlink.cpp(120): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
-     1>c:\users\owen\documents\lucas-research\apmmavlink\datalink\mavlink.cpp(118): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\owen\documents\lucas-research\apmmavlink\datalink\mavlink.cpp(132): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : see declaration of 'sprintf'
+     1>c:\users\owen\documents\lucas-research\apmmavlink\datalink\mavlink.cpp(141): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Owen\Documents\lucas-research\APMMAVLink\Debug\DataLink.dll" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\DataLink.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Owen\Documents\lucas-research\APMMAVLink\Debug\DataLink.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Owen\Documents\lucas-research\APMMAVLink\Debug\DataLink.lib" /MACHINE:X86 /DLL Debug\DataLinkWin.obj
          Debug\DebugDataLink.obj
@@ -779,4 +780,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.73
+Time Elapsed 00:00:01.83

@@ -64,7 +64,8 @@ XPLMWindowID gWindow;
 DataRef elevator("sim/joystick/yoke_pitch_ratio");
 DataRef aileron("sim/joystick/yoke_roll_ratio");
 DataRef rudder("sim/joystick/yoke_heading_ratio");
-DataRef throttle("sim/flightmodel/engine/ENGN_thro_use");
+//DataRef throttle("sim/flightmodel/engine/ENGN_thro_use");
+DataRef throttle("sim/multiplayer/controls/engine_throttle_request");
 DataRef latitude("sim/flightmodel/position/latitude");
 DataRef longitude("sim/flightmodel/position/longitude");
 DataRef altitude("sim/flightmodel/position/elevation");
@@ -139,8 +140,8 @@ long lastTime;
 
 /* If someone else wants control, give it */
 void externalControl(bool flag) {
-	joystickOverride.setInt(flag);
-	throttleOverride.setInt(flag);
+//	joystickOverride.setInt(flag);
+//	throttleOverride.setInt(flag);
 }
 
 /* Set up our custom datarefs to interface nicely with MAVLink */
@@ -285,50 +286,34 @@ int connectCallback(SettingsWindow *w) {
 		/* Give the user some (vaguely) useful message */
 		if (connected) {
 			sprintf(status,"Connected to %s",ip);
+/*----------------------------------------------------------------*/
+			/* Multi-vehicle implementation for SITL */
+
+			/* For all traffic vehicles, try connecting to an autopilot */
+			for (int i = 0; i<MAX_TRAFFIC; i++) {
+
+				/* Assumes connections start from ((base port) + 10), then increment by 10 */
+				trafficLink[i] = new TCPDataLink(ip,w->getPort()+(i+1)*10,false);
+				trafficConnected[i] = trafficLink[i]->connect();
+
+				/* If we connected to an autopilot, continue with set up */
+				if (trafficConnected[i]) {
+					trafficMAV[i] = new MAVLink(255,0,trafficLink[i]);
+				
+					/* Assume that traffic sysIDs start at 2 and increment by 1 */
+					trafficMAV[i]->setTargetComponent(i+2,1);
+
+					/* Set up streams for traffic */
+					requestHILStreams(trafficMAV[i]);
+
+					/* Turn off AI Autopilots for X-Plane AI vehicles */
+					aiOverride.setInt(i+1,1);
+				}
+			}
+/*----------------------------------------------------------------*/
 		} else {
 			sprintf(status,"No Connection to %s",ip);
 		}
-
-/*----------------------------------------------------------------*/
-		/* Multi-vehicle implementation for SITL */
-		char AircraftPath[256];
-		char *pAircraft[9];
-
-		/* Use built in RC trainer, full path needed which is annoying... */
-		strcpy(AircraftPath, "C:\\X-Plane 10\\Aircraft\\Radio Control\\GP_PT_60\\PT60RC.acf");
-
-		aiOverride.setInt(0,1);
-
-		/* For all traffic vehicles, try connecting to an autopilot */
-		for (int i = 0; i<MAX_TRAFFIC; i++) {
-
-			/* Assumes connections start from ((base port) + 10), then increment by 10 */
-			trafficLink[i] = new TCPDataLink(ip,w->getPort()+(i+1)*10,false);
-			trafficConnected[i] = trafficLink[i]->connect();
-
-			/* If we connected to an autopilot, continue with set up */
-			if (trafficConnected[i]) {
-				trafficMAV[i] = new MAVLink(255,0,trafficLink[i]);
-				
-				/* Assume that traffic sysIDs start at 2 and increment by 1 */
-				trafficMAV[i]->setTargetComponent(i+2,1);
-
-				/* Set up streams for traffic */
-				requestHILStreams(trafficMAV[i]);
-
-				/* Turn off AI Autopilots for X-Plane AI vehicles */
-				aiOverride.setInt(i+1,1);
-
-				/* Assign aircraft model to traffic */
-				pAircraft[i] = (char *)AircraftPath;
-			} else {
-				pAircraft[i] = '\0';
-			}
-		}
-		pAircraft[8] = '\0';
-
-		/* Acquire all the traffic planes */
-	//	XPLMAcquirePlanes((char**)&pAircraft, NULL, NULL);
 	}
 	/* If the user wants a serial connection, try to create one */
 	if (w->getFlag() == 2) {
@@ -483,7 +468,10 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	//Set the control positions
 	aileron.setFloat(s1);
 	elevator.setFloat(s2);
-	throttle.setFloat(0,s3);
+	for (int i = 0; i < 8; i++) {
+		throttle.setFloat(i,s3);
+	}
+	
 	rudder.setFloat(s4);
 
 	myMAV->sendMessages();
@@ -497,7 +485,7 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	double dt = getTime_ms() - lastTime;
 	lastTime = getTime_ms();
 
-	externalControl(false);
+//	externalControl(false);
 
 	//Loop over all traffic vehicles
 	for (int i = 0; i <MAX_TRAFFIC; i++) {
@@ -519,19 +507,22 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 			
 			//Track, groundspeed and airspeed must be worked out from X, Y, Z
 			//X is east, Y is up, Z is south (weird coordinate system...)
-			double trk = atan2(-vzTraffic.getFloat(i),vxTraffic.getFloat(i));
-			double gs = sqrt(vzTraffic.getFloat(i)*vzTraffic.getFloat(i) + vxTraffic.getFloat(i)*vxTraffic.getFloat(i));
-			double as = sqrt((vzTraffic.getFloat(i)-zWind.getFloat())*(vzTraffic.getFloat(i)-zWind.getFloat()) + (vxTraffic.getFloat(i)-xWind.getFloat())*(vxTraffic.getFloat(i)-xWind.getFloat()));
+			float trk = atan2(-vzTraffic.getFloat(i),vxTraffic.getFloat(i));
+			float gs = sqrt(vzTraffic.getFloat(i)*vzTraffic.getFloat(i) + vxTraffic.getFloat(i)*vxTraffic.getFloat(i));
+			float as = sqrt((vzTraffic.getFloat(i)-zWind.getFloat())*(vzTraffic.getFloat(i)-zWind.getFloat()) + (vxTraffic.getFloat(i)-xWind.getFloat())*(vxTraffic.getFloat(i)-xWind.getFloat()));
+						
 			trafficMAV[i]->sendRawGPS(3,latitudeTraffic.getDouble(i),longitudeTraffic.getDouble(i),altitudeTraffic.getFloat(i),0,0,gs,trk);
 
-			trafficMAV[i]->sendVFRHUD(as,gs,psiTraffic.getFloat(i),(throttleTraffic[i]->getFloat(0)+10000)/200,altitudeTraffic.getFloat(i),vyTraffic.getFloat(i));
-		
+			trafficMAV[i]->sendVFRHUD(as,gs,(int16_t)psiTraffic.getFloat(i),(uint16_t)0,altitudeTraffic.getFloat(i),vyTraffic.getFloat(i));
+
 			int16_t s1t,s2t,s3t,s4t,s5t,s6t,s7t,s8t;
 			long t = trafficMAV[i]->getScaledServos(s1t,s2t,s3t,s4t,s5t,s6t,s7t,s8t,rssi);
-			sprintf(controls,"A:%-4.0f E:%-4.0f T:%-4.0f R:%-4.0f",(s1t/100.0),(s2t/100.0),(50.0+s3t/200.0),(s4t/100.0));
+
 			aileronTraffic.setFloat(i+1,s1t);
 			elevatorTraffic.setFloat(i+1,s2t);
-			throttleTraffic[0]->setFloat(0,10000);
+			for (int j = 0; j < 8; j++) {
+				throttleTraffic[i]->setFloat(j,s3t);
+			}
 //			float throttle[20];
 //			for (i = 0; i<20; i++) {
 //				throttle[i] = 1.0;
@@ -548,7 +539,7 @@ float MyFlightloopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 }
 
 int myMouseClickCallback(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus inMouse, void *inRefcon) {
-	connectCallback(w);
+	XPLMDestroyWindow(gWindow);
 	return 1;
 }
 
@@ -571,7 +562,7 @@ PLUGIN_API int XPluginStart(char *outName, char *outSig, char *outDesc) {
 	strcpy(outDesc, "This plugin outputs MAVLink compatible messages");
 
 	//set up some things
-	setUpStatusPanel();
+//	setUpStatusPanel();
 	setUpMenu();
 	setUpDataRefs();
 
@@ -595,11 +586,11 @@ PLUGIN_API void	XPluginStop(void) {
 	if (link != NULL) {
 		link->disconnect();
 	}
-/*	for (int i = 0; i <MAX_TRAFFIC; i++) {
+	for (int i = 0; i <MAX_TRAFFIC; i++) {
 		if (trafficConnected[i]) {
 			trafficLink[i]->disconnect();
 		}
-	}*/
+	}
 	XPLMDestroyWindow(gWindow);
 }
 
@@ -611,6 +602,8 @@ PLUGIN_API void XPluginDisable(void) {
 /* When we're enabled, take control back if we can */
 PLUGIN_API int XPluginEnable(void) {
 	externalControl(connected);
+	setUpStatusPanel();
+//	externalControl(false);
 	return 1;
 }
 
